@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>सहकारी आम्दानी लेजर - फारम ३</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <style>
+        :root {
+            /* Naya Colour Palette */
+            --primary-dark: #2c3e50;
+            --accent-blue: #3498db;
+            --success-green: #27ae60;
+            --edit-yellow: #fff9c4; /* Edit garda row ko colour */
+            --border-color: #000000;
+        }
+
+        body { 
+            font-family: 'Arial', sans-serif; 
+            background: #f4f7f6; 
+            margin: 0; padding: 10px; color: #333; 
+            font-size: 11px;
+        }
+
+        .container {
+            max-width: 100%; margin: auto; background: #fff;
+            border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden; border: 1px solid var(--border-color);
+        }
+
+        .app-header {
+            background: #fff; color: #000; padding: 10px;
+            text-align: center; border-bottom: 2px solid var(--border-color);
+        }
+
+        .toolbar {
+            display: flex; gap: 10px; padding: 10px;
+            background: #eeeeee; border-bottom: 1px solid var(--border-color);
+            align-items: center;
+        }
+
+        /* Buttons Colour Updated */
+        .btn {
+            padding: 6px 14px; border-radius: 4px; font-weight: bold;
+            cursor: pointer; border: 1px solid #555; font-size: 11px;
+            transition: 0.3s;
+        }
+        .btn-add { background: var(--accent-blue); color: white; border: none; }
+        .btn-save { background: var(--success-green); color: white; border: none; }
+        .btn-export { background: #607d8b; color: white; border: none; }
+        .btn-edit { background: #f39c12; color: white; border: none; }
+        .btn-ok { background: #2ecc71; color: white; border: none; }
+        
+        .btn:hover { opacity: 0.8; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+
+        .table-wrapper { overflow: auto; max-height: 75vh; }
+        
+        table { border-collapse: collapse; width: 100%; background: #fff; }
+
+        thead th {
+            position: sticky; top: 0; z-index: 100; 
+            background: #e0e0e0;
+            border: 1px solid var(--border-color);
+            padding: 6px;
+            text-align: center;
+            color: #000;
+        }
+
+        .sticky-col { position: sticky; background: #fff !important; z-index: 50; border-right: 2px solid var(--border-color) !important; }
+        .col-1 { left: 0; min-width: 160px; }
+        
+        td { 
+            border: 1px solid var(--border-color); padding: 5px; 
+            height: 25px; text-align: center;
+        }
+
+        .editable-cell { outline: none; min-height: 18px; width: 100%; }
+
+        /* Row Entry Colour */
+        .row-editing { background-color: var(--edit-yellow) !important; }
+        .row-editing td { border: 1px solid #fbc02d; }
+
+        .total-col { background: #f1f8e9; font-weight: bold; color: #2e7d32; }
+        .grand-total-col { background: #e3f2fd; font-weight: bold; color: #1565c0; }
+
+        .pagination-bar {
+            padding: 10px; background: #fff; border-top: 1px solid var(--border-color);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="app-header">
+        <h2 style="margin:0;">📓 श्री उद्गम बचत तथा ऋण सहकारी संस्था, सुनसरी </h2>
+        <h4 style="margin:5px 0;">आम्दानी खाता (फारम नं. ३)</h4>
+    </div>
+
+    <div class="toolbar">
+        <button class="btn btn-add" onclick="addNewRow()">➕ नयाँ इन्ट्री</button>
+        <button class="btn btn-save" onclick="manualSave()">💾 Save Data</button>
+        <button class="btn btn-export" onclick="exportExcel()">📊 Export Excel</button>
+        <div id="status-msg" style="margin-left: 15px; font-weight: bold; color: var(--success-green);"></div>
+    </div>
+
+    <div class="table-wrapper">
+        <table id="amdaniTable">
+            <thead>
+                <tr>
+                    <th rowspan="3" class="sticky-col col-1">मिति / विवरण</th>
+                    <th rowspan="3">बिक्री (१६०.१)</th>
+                    <th rowspan="3">ऋणबाट आम्दानी (१६०.२)</th>
+                    <th colspan="5">लगानीबाट आम्दानी (१६०.३)</th>
+                    <th colspan="6">अन्य आम्दानी (१६०.४)</th>
+                    <th colspan="5">छुट आम्दानी (१६०.५)</th>
+                    <th rowspan="3">ऋण जोखिम व्यवस्थापनबाट आम्दानी १६०.९</th>
+                    <th rowspan="3">विविध १६०.१०</th>
+                    <th rowspan="3">अन्य १</th>
+                    <th rowspan="3">अन्य २</th>
+                    <th rowspan="3" class="total-col">जम्मा</th>
+                    <th rowspan="3" class="grand-total-col">कुल जम्मा रकम</th>
+                    <th rowspan="3">Action</th>
+                </tr>
+                <tr>
+                    <th rowspan="2">सेयर लगानीबाट आम्दानी १६०.३.१.१</th>
+                    <th rowspan="2">आवधिक बचत लगानीबाट आम्दानी १६०.३.१.२</th>
+                    <th rowspan="2">अन्य वित्तीय लगानीबाट आम्दानी १६०.३.१.३</th>
+                    <th rowspan="2">बैंकबाट ब्याज प्राप्त १६०.३.२.१</th>
+                    <th rowspan="2">संघहरूबाट ब्याज प्राप्त १६०.३.२.२</th>
+                    
+                    <th rowspan="2">पासबुक बिक्री १६०.४.१</th>
+                    <th rowspan="2">खाता बन्द शुल्क १६०.४.२</th>
+                    <th rowspan="2">ऋण माग फारम १६०.४.३</th>
+                    <th rowspan="2">हर्जाना १६०.४.४</th>
+                    <th rowspan="2">ऋण व्यवस्थापन शुल्क १६०.४.५</th>
+                    <th rowspan="2">धितो मूल्याङ्कन शुल्क</th>
+
+                    <th rowspan="2">व्यापारिक छुट १६०.५.१</th>
+                    <th rowspan="2">कमिशन १६०.५.२</th>
+                    <th rowspan="2">प्रशासनिक अनुदान १६०.६</th>
+                    <th rowspan="2">विलम्ब शुल्क १६०.७</th>
+                    <th rowspan="2">प्रवेश शुल्क १६०.८</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+
+    <div class="pagination-bar">
+        <div>Total Rows: <span id="totalRecords">0</span></div>
+        <div>
+            <button class="btn" id="prevBtn" onclick="changePage(-1)">Prev</button>
+            <span id="pageInfo" style="margin: 0 15px; font-weight: bold;">Page 1</span>
+            <button class="btn" id="nextBtn" onclick="changePage(1)">Next</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let allData = JSON.parse(localStorage.getItem('sahakari_amdani_colored')) || [];
+    let currentPage = 1;
+    const recordsPerPage = 15;
+    let editingRowIdx = null;
+
+    function recalculate() {
+        let runningTotal = 0;
+        allData.forEach(row => {
+            let rowSum = 0;
+            row.vals.forEach(v => rowSum += (parseFloat(v) || 0));
+            row.rowTotal = rowSum;
+            runningTotal += rowSum;
+            row.grandTotal = runningTotal;
+        });
+    }
+
+    function renderTable() {
+        recalculate();
+        const tbody = document.getElementById("tableBody");
+        tbody.innerHTML = "";
+        const start = (currentPage - 1) * recordsPerPage;
+        const pageData = allData.slice(start, start + recordsPerPage);
+
+        pageData.forEach((data, pIdx) => {
+            const rIdx = start + pIdx;
+            const isEditing = editingRowIdx === rIdx;
+            const tr = document.createElement("tr");
+            if(isEditing) tr.className = "row-editing";
+
+            let html = `<td class="sticky-col col-1"><div class="editable-cell" contenteditable="${isEditing}" oninput="allData[${rIdx}].desc=this.innerText">${data.desc || ''}</div></td>`;
+            
+            data.vals.forEach((v, cIdx) => {
+                html += `<td><div class="editable-cell" contenteditable="${isEditing}" oninput="updateVal(${rIdx}, ${cIdx}, this.innerText)">${v || ''}</div></td>`;
+            });
+
+            html += `
+                <td class="total-col">${(data.rowTotal || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                <td class="grand-total-col">${(data.grandTotal || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                <td>
+                    ${isEditing ? 
+                        `<button class="btn btn-ok" onclick="saveRow()">OK</button>` : 
+                        `<button class="btn btn-edit" onclick="editRow(${rIdx})">Edit</button>`
+                    }
+                </td>
+            `;
+            tr.innerHTML = html;
+            tbody.appendChild(tr);
+        });
+        updateUI();
+    }
+
+    function updateVal(rIdx, cIdx, val) {
+        allData[rIdx].vals[cIdx] = val.replace(/[^0-9.]/g, '');
+    }
+
+    function addNewRow() {
+        allData.push({ desc: '', vals: Array(22).fill(''), rowTotal: 0, grandTotal: 0 });
+        currentPage = Math.ceil(allData.length / recordsPerPage);
+        editingRowIdx = allData.length - 1;
+        renderTable();
+    }
+
+    function editRow(idx) { editingRowIdx = idx; renderTable(); }
+    function saveRow() { editingRowIdx = null; renderTable(); }
+    
+    function manualSave() {
+        localStorage.setItem('sahakari_amdani_colored', JSON.stringify(allData));
+        document.getElementById('status-msg').innerText = "Data Saved! ✅";
+        setTimeout(() => document.getElementById('status-msg').innerText = "", 2000);
+    }
+
+    function changePage(dir) { currentPage += dir; editingRowIdx = null; renderTable(); }
+
+    function updateUI() {
+        const totalPages = Math.ceil(allData.length / recordsPerPage) || 1;
+        document.getElementById('totalRecords').innerText = allData.length;
+        document.getElementById('pageInfo').innerText = `Page ${currentPage} / ${totalPages}`;
+        document.getElementById('prevBtn').disabled = currentPage === 1;
+        document.getElementById('nextBtn').disabled = currentPage >= totalPages;
+    }
+
+    function exportExcel() {
+        const exportData = allData.map(d => ({ "विवरण": d.desc, "जम्मा": d.rowTotal, "कुल जम्मा": d.grandTotal }));
+        const wb = XLSX.utils.json_to_sheet(exportData);
+        const book = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(book, wb, "Income_Ledger");
+        XLSX.writeFile(book, "Sahakari_Amdani.xlsx");
+    }
+
+    window.onload = renderTable;
+</script>
+
+</body>
+</html>

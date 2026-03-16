@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Collector Management Dashboard</title>
+
+<style>
+:root {
+    --primary: #305496;
+    --secondary: #004d40;
+    --accent: #ffca28;
+    --bg: #f0f2f5;
+    --white: #ffffff;
+    --border-dark: #777;
+    --save-green: #2e7d32;
+    --edit-blue: #0277bd;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg);
+    color: #333; margin: 0; padding: 10px; font-size: 13px;
+}
+
+h2 { text-align: center; color: var(--primary); font-size: 1.4rem; margin: 10px 5px 0 5px; }
+
+.date-selector {
+    display: inline-block; padding: 8px 12px; background: #fffde7;
+    border: 2px solid var(--accent); border-radius: 8px; margin-right: 10px;
+}
+
+.toolbar { 
+    text-align: center; margin-bottom: 20px; padding: 15px; 
+    background: var(--white); border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.btn {
+    padding: 7px 15px; margin: 3px; border: none;
+    background: var(--primary); color: white;
+    font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.save-btn { background: var(--save-green) !important; font-size: 13px !important; border: 1px solid #1b5e20 !important; }
+.add-btn { background: #2e7d32; color: white; border: none; border-radius: 4px; width: 22px; height: 22px; cursor: pointer; font-weight: bold; }
+
+.action-btn { padding: 4px 8px; border: none; border-radius: 4px; cursor: pointer; color: white; font-size: 11px; margin: 0 2px; }
+.btn-edit { background: var(--edit-blue); }
+.btn-save-note { background: var(--save-green); display: none; }
+.btn-del { background: #c62828; color: white; border: none; border-radius: 4px; cursor: pointer; padding: 2px 6px; }
+
+.table-container { overflow-x: auto; background: var(--white); border-radius: 10px; padding: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+table { border-collapse: collapse; width: 100%; min-width: 1000px; border: 2px solid var(--border-dark); }
+th { background: var(--primary); color: white; padding: 8px 4px; border: 1px solid var(--white); }
+td { border: 1px solid var(--border-dark); padding: 5px; text-align: center; }
+
+.collector-header { background: #e9ecef; cursor: pointer; }
+.collector-header:hover { background: #dee2e6; }
+.collector-header td { font-weight: bold; text-align: left; padding-left: 10px; color: var(--primary); }
+
+input { width: 85%; padding: 4px; border: 1px solid #ccc; border-radius: 4px; text-align: right; font-size: 12px; }
+input:disabled { background: #f9f9f9; border: 1px solid transparent; color: #333; text-align: center; }
+input.has-value { background-color: #e3f2fd; border-color: #2196f3; font-weight: bold; }
+
+.total, .rec { background: #f1f8e9; font-weight: bold; color: #2e7d32; }
+.diff { background: #fff8e1; font-weight: bold; }
+.status { font-size: 11px; padding: 2px 6px; border-radius: 10px; font-weight: bold; }
+.approved { color: #2e7d32; background: #c8e6c9; }
+.pending { color: #c62828; background: #ffcdd2; }
+
+#denomSection, #notesSection {
+    background: var(--white); padding: 20px; border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08); max-width: 1000px; margin: 20px auto;
+}
+
+.total-card {
+    flex: 0.8; min-width: 300px; background: var(--secondary); color: var(--accent);
+    padding: 30px 20px; border-radius: 15px; text-align: center; border: 3px solid var(--accent);
+}
+.grand-total-val { font-size: 50px; font-weight: 800; margin: 10px 0; color: #fff; }
+
+@media print { .toolbar, .add-btn, .action-btn, .btn-del { display: none; } }
+</style>
+</head>
+
+<body>
+
+<h2>𝐂𝐨𝐥𝐥𝐞𝐜𝐭𝐨𝐫 𝐌𝐚𝐧𝐚𝐠𝐞𝐦𝐞𝐧𝐭 𝐃𝐚𝐬𝐡𝐛𝐨𝐚𝐫𝐝</h2>
+
+<div class="toolbar">
+    <div class="date-selector">
+        <label style="font-weight:bold;">📅 Transaction Date: </label>
+        <input type="date" id="transDate" onchange="loadTableByDate()" style="border:none; background:transparent; font-weight:bold; cursor:pointer; width:auto;">
+    </div>
+
+    <button class="btn save-btn" id="saveBtn" onclick="manualSave()">💾 Save Data (Selected Date)</button>
+    <button class="btn" onclick="exportCSV()">📁 Export CSV</button>
+    <button class="btn" onclick="toggleView('denomSection')">💰 Cash Calc</button>
+    <button class="btn" onclick="toggleView('notesSection')">📝 Notes</button>
+    <button class="btn" onclick="window.print()">🖨️ Print PDF</button>
+    <button class="btn" style="background:#c62828">🟢 Admin-Arun</button>
+</div>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Action</th><th>𝐏𝐚𝐫𝐭𝐢𝐜𝐮𝐥𝐚𝐫𝐬</th><th>𝐒𝐚𝐯𝐢𝐧𝐠</th><th>𝐋𝐨𝐚𝐧</th><th>𝐓𝐨𝐭𝐚𝐥</th>
+                <th>𝐍𝐂𝐁𝐋</th><th>𝐞-𝐒𝐞𝐰𝐚</th><th>𝐒𝐮𝐧𝐫𝐢𝐬𝐞</th><th>𝐂𝐚𝐬𝐡</th><th>𝐊𝐡𝐚𝐭𝐚</th><th>𝐑𝐞𝐜𝐞𝐢𝐯𝐞𝐝</th><th>𝐃𝐢𝐟𝐟_𝐧</th><th>𝐒𝐭𝐚𝐭𝐮𝐬</th>
+            </tr>
+        </thead>
+        <tbody id="collectorBody"></tbody>
+    </table>
+</div>
+
+<div id="denomSection" style="display:none;">
+    <div style="display:flex; flex-wrap: wrap; gap: 30px; justify-content: center;">
+        <div id="denomRowsContainer" style="flex:1; min-width:280px;"></div>
+        <div class="total-card">
+            <h4>𝓝𝓲𝓻𝓶𝓪𝓵𝓪: 9804370723  📞𝓮-𝓢𝓮𝔀𝓪: 9765379955</h4>
+             <h4>𝐌𝐞𝐦𝐛𝐞𝐫 𝐈𝐝:𝟑𝟑𝟔𝟏 ♨️ 𝐍𝐞𝐟𝐬𝐜𝐮𝐧 𝐀/𝐜 𝐍𝐨: 𝟑𝟎𝟎𝟑𝟎𝟎𝟎𝟏𝟓𝟐𝟖 </h4>
+            <h4>💲Total Cash Balance✔️</h4>
+            <div id="denomTotal" class="grand-total-val">0</div>
+            <div id="denomWords" style="color: #fff; margin-top: 15px; font-weight: bold; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 10px; font-style: italic;">Zero Rupees Only</div>
+        </div>
+    </div>
+</div>
+
+<div id="notesSection" style="display:none;">
+    <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom:10px;">
+        <h3 style="color:var(--primary); margin:0;">User Notes</h3>
+        <button class="btn" onclick="addNoteRow()" style="background:var(--save-green)">+ Add New Note</button>
+    </div>
+    <table style="min-width: 100%;">
+        <thead>
+            <tr style="background:#ddd;">
+                <th style="color:#333; width:150px;">Date</th>
+                <th style="color:#333;">Particulars</th>
+                <th style="color:#333; width:150px;">Amount</th>
+                <th style="color:#333; width:180px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody id="notesBody"></tbody>
+    </table>
+</div>
+
+<script>
+const collectors = ["𝐀𝐍𝐈𝐓𝐀 𝐃𝐀𝐇𝐀𝐋","𝐁𝐈𝐌𝐀𝐋𝐀 𝐊𝐇𝐀𝐓𝐑𝐈","𝐃𝐔𝐑𝐆𝐀 𝐍𝐄𝐔𝐏𝐀𝐍𝐄","𝐆𝐀𝐍𝐆𝐀 𝐁𝐀𝐒𝐍𝐄𝐓","𝐆𝐈𝐓𝐀 𝐊𝐇𝐀𝐓𝐑𝐈","𝐌𝐀𝐍𝐉𝐔 𝐏𝐔𝐑𝐈","𝐒𝐔𝐒𝐇𝐈𝐋𝐀 𝐏𝐀𝐑𝐀𝐉𝐔𝐋𝐈"];
+const denoms = [1000, 500, 100, 50, 20, 10, 5];
+
+window.onload = () => {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('transDate').value = today;
+    loadTableByDate();
+    initDenoms();
+    loadNotes();
+};
+
+function loadTableByDate() {
+    const selectedDate = document.getElementById('transDate').value;
+    const history = JSON.parse(localStorage.getItem('mainDataArray')) || [];
+    const tbody = document.getElementById("collectorBody");
+    tbody.innerHTML = "";
+    
+    collectors.forEach(name => {
+        const headerTr = document.createElement("tr");
+        headerTr.className = "collector-header";
+        headerTr.innerHTML = `
+            <td><button class="add-btn" onclick="addNewRow(this, '${name}')">+</button></td>
+            <td colspan="12" onclick="toggleRows('${name}')">📁 ${name} <small style="color:#777; font-weight:normal;">(Click to view data)</small></td>
+        `;
+        tbody.appendChild(headerTr);
+
+        const entries = history.filter(item => item.date === selectedDate && item.name === name);
+        
+        if (entries.length > 0) {
+            entries.forEach(entry => {
+                const row = createDataRow(name, entry.values);
+                row.style.display = "none";
+                tbody.appendChild(row);
+            });
+        } else {
+            const row = createDataRow(name, ["","","","","","",""]);
+            row.style.display = "none";
+            tbody.appendChild(row);
+        }
+    });
+}
+
+function createDataRow(name, data = ["","","","","","",""]) {
+    const tr = document.createElement("tr");
+    tr.dataset.name = name;
+    tr.className = `row-${name.replace(/\s+/g, '-')}`;
+    tr.innerHTML = `
+        <td><button class="btn-del" onclick="this.closest('tr').remove()">×</button></td>
+        <td style="text-align:left; color:#666; font-size:11px;">${name}</td>
+        <td><input type="number" value="${data[0]}" oninput="handleInput(this)"></td>
+        <td><input type="number" value="${data[1]}" oninput="handleInput(this)"></td>
+        <td class="total">0</td>
+        <td><input type="number" value="${data[2]}" oninput="handleInput(this)"></td>
+        <td><input type="number" value="${data[3]}" oninput="handleInput(this)"></td>
+        <td><input type="number" value="${data[4]}" oninput="handleInput(this)"></td>
+        <td><input type="number" value="${data[5]}" oninput="handleInput(this)"></td>
+        <td><input type="number" value="${data[6]}" oninput="handleInput(this)"></td>
+        <td class="rec">0</td>
+        <td class="diff">0</td>
+        <td><span class="status pending">Pending</span></td>
+    `;
+    setTimeout(() => calcRow(tr), 10);
+    return tr;
+}
+
+function toggleRows(name) {
+    const className = `row-${name.replace(/\s+/g, '-')}`;
+    const rows = document.querySelectorAll(`.${className}`);
+    rows.forEach(row => {
+        row.style.display = (row.style.display === "none") ? "table-row" : "none";
+    });
+}
+
+function addNewRow(btn, name) {
+    const headerRow = btn.closest("tr");
+    const className = `row-${name.replace(/\s+/g, '-')}`;
+    const newRow = createDataRow(name, ["","","","","","",""]);
+    const entries = document.querySelectorAll(`.${className}`);
+    let lastRow = entries.length > 0 ? entries[entries.length - 1] : headerRow;
+    lastRow.parentNode.insertBefore(newRow, lastRow.nextSibling);
+    document.querySelectorAll(`.${className}`).forEach(r => r.style.display = "table-row");
+}
+
+function handleInput(el) {
+    if (el.value != 0 && el.value !== "") el.classList.add('has-value'); else el.classList.remove('has-value');
+    calcRow(el.closest('tr'));
+}
+
+function calcRow(r) {
+    const ins = r.querySelectorAll('input');
+    const v = (i) => parseFloat(ins[i].value) || 0;
+    const total = v(0) + v(1);
+    const rec = v(2) + v(3) + v(4) + v(5) + v(6);
+    const diff = total - rec;
+    r.cells[4].innerText = total.toLocaleString();
+    r.cells[10].innerText = rec.toLocaleString();
+    r.cells[11].innerText = diff.toLocaleString();
+    const st = r.cells[12].querySelector('.status');
+    if (Math.abs(diff) < 0.01 && (total > 0 || rec > 0)) { 
+        st.innerText = "Approved"; st.className = "status approved"; 
+    } else { 
+        st.innerText = "Pending"; st.className = "status pending"; 
+    }
+}
+
+function manualSave() {
+    const selectedDate = document.getElementById('transDate').value;
+    let history = JSON.parse(localStorage.getItem('mainDataArray')) || [];
+    history = history.filter(item => item.date !== selectedDate);
+
+    document.querySelectorAll('#collectorBody tr').forEach(tr => {
+        if (!tr.classList.contains('collector-header')) {
+            const name = tr.dataset.name;
+            const values = Array.from(tr.querySelectorAll('input')).map(i => i.value);
+            history.push({ name: name, values: values, date: selectedDate });
+        }
+    });
+
+    localStorage.setItem('mainDataArray', JSON.stringify(history));
+    autoSaveNotes();
+    const btn = document.getElementById('saveBtn');
+    btn.innerText = "✅ Saved!";
+    setTimeout(() => btn.innerText = "💾 Save Data (Selected Date)", 1500);
+}
+
+// --- CASH CALCULATOR WITH WORDS FUNCTION ---
+
+function initDenoms() {
+    const container = document.getElementById("denomRowsContainer");
+    container.innerHTML = "";
+    denoms.forEach(v => {
+        container.innerHTML += `
+        <div style="display:flex; align-items:center; border-bottom:1px solid #eee; padding:5px 0;">
+            <div style="width:50px; font-weight:bold;">${v}</div>
+            <input type="number" class="dn" data-v="${v}" oninput="calcDenom()" style="flex:1; margin:0 10px; text-align:center;">
+            <div id="sub${v}" style="width:80px; text-align:right;">0</div>
+        </div>`;
+    });
+}
+
+function calcDenom() {
+    let total = 0;
+    document.querySelectorAll('.dn').forEach(i => {
+        const amt = (i.dataset.v * i.value) || 0;
+        document.getElementById('sub' + i.dataset.v).innerText = amt.toLocaleString();
+        total += amt;
+    });
+    document.getElementById('denomTotal').innerText = total.toLocaleString();
+    document.getElementById('denomWords').innerText = numberToWords(total);
+}
+
+function numberToWords(num) {
+    if (num === 0) return "Zero Rupees Only";
+    const a = ['', 'One ', 'Two ', 'Three ', 'Four ', 'Five ', 'Six ', 'Seven ', 'Eight ', 'Nine ', 'Ten ', 'Eleven ', 'Twelve ', 'Thirteen ', 'Fourteen ', 'Fifteen ', 'Sixteen ', 'Seventeen ', 'Eighteen ', 'Nineteen '];
+    const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+    const format = (n, s) => n > 0 ? (n > 19 ? b[Math.floor(n/10)] + " " + a[n%10] : a[n]) + s : "";
+    let str = "";
+    str += format(Math.floor(num / 10000000), " Crore ");
+    str += format(Math.floor((num / 100000) % 100), " Lakh ");
+    str += format(Math.floor((num / 1000) % 100), " Thousand ");
+    str += format(Math.floor((num / 100) % 10), " Hundred ");
+    if (num > 100 && num % 100 > 0) str += "and ";
+    str += format(num % 100, "");
+    return str.trim() + " Rupees Only";
+}
+
+// --- END OF CASH CALCULATOR FUNCTIONS ---
+
+function addNoteRow(date = "", part = "", amt = "", isLocked = false) {
+    const tbody = document.getElementById("notesBody");
+    const tr = document.createElement("tr");
+    const today = date || new Date().toISOString().split('T')[0];
+    tr.innerHTML = `
+        <td><input type="date" value="${today}" ${isLocked ? 'disabled' : ''}></td>
+        <td><input type="text" value="${part}" ${isLocked ? 'disabled' : ''} style="text-align:left;"></td>
+        <td><input type="number" value="${amt}" ${isLocked ? 'disabled' : ''}></td>
+        <td>
+            <button class="action-btn btn-edit" onclick="editNote(this)" style="display:${isLocked?'inline-block':'none'}">Edit</button>
+            <button class="action-btn btn-save-note" onclick="saveNote(this)" style="display:${isLocked?'none':'inline-block'}">Save</button>
+            <button class="action-btn btn-del" onclick="deleteNote(this)">Delete</button>
+        </td>`;
+    tbody.appendChild(tr);
+}
+function editNote(btn) {
+    const tr = btn.closest('tr');
+    tr.querySelectorAll('input').forEach(i => i.disabled = false);
+    btn.style.display = 'none';
+    tr.querySelector('.btn-save-note').style.display = 'inline-block';
+}
+function saveNote(btn) {
+    const tr = btn.closest('tr');
+    tr.querySelectorAll('input').forEach(i => i.disabled = true);
+    btn.style.display = 'none';
+    tr.querySelector('.btn-edit').style.display = 'inline-block';
+    autoSaveNotes();
+}
+function deleteNote(btn) {
+    if(confirm("Delete this note?")) { btn.closest('tr').remove(); autoSaveNotes(); }
+}
+function autoSaveNotes() {
+    const notes = [];
+    document.querySelectorAll('#notesBody tr').forEach(tr => {
+        const ins = tr.querySelectorAll('input');
+        if(ins.length > 0) notes.push({ date: ins[0].value, part: ins[1].value, amt: ins[2].value });
+    });
+    localStorage.setItem('notesData', JSON.stringify(notes));
+}
+function loadNotes() {
+    const saved = JSON.parse(localStorage.getItem('notesData')) || [];
+    saved.forEach(n => addNoteRow(n.date, n.part, n.amt, true));
+}
+
+function toggleView(id) {
+    const el = document.getElementById(id);
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function exportCSV() {
+    let csv = "Date,Collector,Saving,Loan,Total,NCBL,ESEWA,SUNRISE,CASH,KHATA,Rec,Diff\n";
+    const date = document.getElementById('transDate').value;
+    document.querySelectorAll('#collectorBody tr').forEach(tr => {
+        if (!tr.classList.contains('collector-header')) {
+            const cells = [date, tr.dataset.name];
+            tr.querySelectorAll('input').forEach(i => cells.push(i.value || 0));
+            csv += cells.join(",") + "\n";
+        }
+    });
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `Report_${date}.csv`;
+    link.click();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sahakari Ledger - Fixed Typing</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #1e293b; --accent: #3b82f6; --success: #10b981;
+            --bg-body: #f8fafc; --card-bg: #ffffff; --border: #cbd5e1;
+            --warning: #f59e0b;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg-body); 
+            margin: 0; padding: 10px; color: #334155; 
+            font-size: 12px;
+        }
+
+        .container {
+            max-width: 100%; margin: auto; background: var(--card-bg);
+            border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            overflow: hidden; border: 1px solid var(--border);
+        }
+
+        .app-header {
+            background: linear-gradient(135deg, var(--primary), #475569); 
+            color: white; padding: 10px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .toolbar {
+            display: flex; gap: 10px; padding: 10px 20px;
+            background: #fff; border-bottom: 1px solid #e2e8f0;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 6px 14px; border-radius: 4px; font-weight: 600;
+            cursor: pointer; border: none; font-size: 12px; transition: 0.2s;
+        }
+        .btn-add { background: var(--accent); color: white; }
+        .btn-manual-save { background: var(--success); color: white; border: 2px solid #059669; }
+        .btn-edit { background: var(--warning); color: white; }
+        .btn-row-save { background: var(--success); color: white; }
+
+        .table-wrapper { overflow: auto; max-height: 70vh; scrollbar-width: thin; }
+        
+        table { border-collapse: separate; border-spacing: 0; width: auto; min-width: 100%; }
+
+        thead th {
+            position: sticky; top: 0; z-index: 100; 
+            background: #f1f5f9;
+            border-bottom: 2px solid var(--border);
+            border-right: 1px solid var(--border); 
+            height: 160px; 
+            padding: 5px 2px;
+            vertical-align: bottom; 
+            text-align: center;
+        }
+
+        .th-content {
+            writing-mode: vertical-rl; 
+            transform: rotate(180deg); 
+            white-space: normal;       
+            word-wrap: break-word; 
+            max-height: 150px;         
+            display: inline-block;
+            font-size: 11px;
+            font-weight: bold;
+            line-height: 1.2;
+            text-align: left;
+            width: 26px; 
+        }
+
+        .sticky-col { position: sticky; background: #f8fafc !important; z-index: 50; border-right: 1px solid var(--border) !important; }
+        .col-1 { left: 0; min-width: 90px; }
+        .col-2 { left: 90px; min-width: 60px; }
+        .col-3 { left: 150px; min-width: 180px; } 
+        
+        td { 
+            padding: 5px; border-bottom: 1px solid #e2e8f0; 
+            border-right: 1px solid #e2e8f0; height: 32px; 
+            text-align: center; min-width: 40px;
+        }
+
+        .editable-cell {
+            outline: none;
+            min-height: 20px;
+            display: inline-block;
+            min-width: 30px;
+            white-space: nowrap;
+            padding: 2px 4px;
+        }
+
+        .row-editing { background: #fffbeb !important; }
+        .row-editing .editable-cell { 
+            background: #fff; border: 1px solid var(--accent); 
+            border-radius: 2px;
+        }
+
+        .total-col { background: #f1f5f9; font-weight: bold; width: 80px; }
+        .grand-total-col { background: #e2e8f0; font-weight: bold; width: 100px; color: #1e293b; }
+        .action-cell { position: sticky; right: 0; background: white; z-index: 50; border-left: 2px solid var(--border); width: 80px; text-align: center;}
+        
+        #status-msg { font-size: 12px; color: #10b981; font-weight: bold; margin-right: 15px; }
+
+        .pagination-bar {
+            padding: 10px 20px; background: #fff; border-top: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .page-btn { padding: 4px 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="app-header">
+        <h1 style="margin:0; font-size: 20px;">📓 उद्गम बचत तथा ऋण सहकारी संस्था, सुनसरी- (सामान खरिद तथा खर्च खाता)<span style="font-size: 10px; background: rgba(232, 240, 238, 0.2); padding: 3px 8px; border-radius: 12px;">फारम नम्बर २ (फा.नं २)</span></h1>
+        <div style="display: flex; align-items: center;">
+            <div id="status-msg"></div>
+            <div id="clock"></div>
+        </div>
+    </div>
+
+    <div class="toolbar">
+        <button class="btn btn-add" onclick="addNewRow()">➕ नयाँ रेकर्ड</button>
+        <button class="btn btn-manual-save" onclick="manualSave()">💾 Manual Save (Permanently)</button>
+        <button class="btn" style="background:#64748b; color:white" onclick="exportExcel()">📊 Excel Export</button>
+    </div>
+
+    <div class="table-wrapper">
+        <table id="fullLedgerTable">
+            <thead>
+                <tr>
+                    <th class="sticky-col col-1">मिति</th>
+                    <th class="sticky-col col-2">महिना</th>
+                    <th class="sticky-col col-3">विवरण</th>
+                    <script>
+                        const columnNames = [
+                            "समान खरिद (१५०-१)", "ढुवानी तथा ज्याला (१५०-२)", "तलब तथा भत्ता (१५०-३)", "घर गोदाम भाडा (१५०-४)", 
+                            "मसलन्द तथा स्टेशनरी (१५०-५)", "मर्मत तथा सम्भार (१५०-६)", "ब्याज खर्च रकम (१५०-७)", "विविध खर्च रकम १५०-८", 
+                            "ह्रास कट्टी खर्च (१५०-९)", "इन्धन खर्च (१५०-१०)", "बैठक व्यवस्थापन खर्च (१५०-११)", "हर्जाना खर्च (१५०-१२)", "व्यापारिक छुट (१५०-१३)", "सदस्यता शुल्क (१५०-१४)", "रिबेट खर्च (१५०-१५)", "रिबेट खर्च विद्युत तथा पानी महसुल १५०-१६", 
+                            "संचार खर्च (१५०-१७)", "ऋण जोखिम व्यवस्थापन खर्च (१५०-१८)", "तालिम तथा शिक्षा खर्च (१५०-१९)", "साधारण सभा खर्च (१५०-२०)", "अतिथि सत्कार खर्च (१५०-२१)", "सामाजिक क्रियाकलाप (१५०-२२)", "भ्रमण तथा प्रवर्द्धन (१५०-२३)", "पुरस्कार तथा छात्रवृत्ति (१५०-२४)", 
+                            "लेखा परीक्षण शुल्क (१५०-२५)", "बीमा खर्च (१५०-२६)", "ऋण अपलेखन खर्च (१५०-२७)", "स्थिरीकरण कोष खर्च (१५०-२८)"
+                        ];
+
+                        columnNames.forEach((name) => {
+                            document.write(`<th><span class="th-content">${name}</span></th>`);
+                        });
+                    </script>
+                    <th style="background:#475569; color:#fff;">कुल जम्मा</th>
+                    <th style="background:#1e293b; color:#fff;">Grand Total</th>
+                    <th class="action-cell">कार्य</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+
+    <div class="pagination-bar">
+        <div>कुल रेकर्ड: <span id="totalRecords">0</span></div>
+        <div>
+            <button class="page-btn" id="prevBtn" onclick="changePage(-1)">अघिल्लो</button>
+            <span id="pageInfo" style="margin: 0 10px; font-weight: bold;">Page 1</span>
+            <button class="page-btn" id="nextBtn" onclick="changePage(1)">पछिल्लो</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let allData = JSON.parse(localStorage.getItem('sahakari_manual_db')) || [];
+    let currentPage = 1;
+    const recordsPerPage = 13;
+    let editingRowIdx = null;
+
+    function recalculateAll() {
+        let runningTotal = 0;
+        allData.forEach(row => {
+            let rowSum = 0;
+            row.vals.forEach(v => rowSum += (parseFloat(v) || 0));
+            row.rowTotal = rowSum;
+            runningTotal += rowSum;
+            row.grandTotal = runningTotal;
+        });
+    }
+
+    function renderTable() {
+        recalculateAll();
+        const tbody = document.getElementById("tableBody");
+        tbody.innerHTML = "";
+        const start = (currentPage - 1) * recordsPerPage;
+        const pageData = allData.slice(start, start + recordsPerPage);
+
+        pageData.forEach((data, pIdx) => {
+            const rIdx = start + pIdx;
+            const isEditing = editingRowIdx === rIdx;
+            const tr = document.createElement("tr");
+            tr.setAttribute('data-index', rIdx);
+            if(isEditing) tr.className = "row-editing";
+
+            let html = `
+                <td class="sticky-col col-1"><div class="editable-cell" contenteditable="${isEditing}" oninput="updateData(${rIdx}, 'date', this.innerText)">${data.date || ''}</div></td>
+                <td class="sticky-col col-2"><div class="editable-cell" contenteditable="${isEditing}" oninput="updateData(${rIdx}, 'voucher', this.innerText)">${data.voucher || ''}</div></td>
+                <td class="sticky-col col-3"><div class="editable-cell" style="text-align:left" contenteditable="${isEditing}" oninput="updateData(${rIdx}, 'desc', this.innerText)">${data.desc || ''}</div></td>
+            `;
+
+            data.vals.forEach((v, cIdx) => {
+                html += `<td><div class="editable-cell" contenteditable="${isEditing}" oninput="updateCell(${rIdx}, ${cIdx}, this)">${v || ''}</div></td>`;
+            });
+
+            html += `
+                <td class="total-col">${(data.rowTotal || 0).toLocaleString()}</td>
+                <td class="grand-total-col">${(data.grandTotal || 0).toLocaleString()}</td>
+                <td class="action-cell">
+                    ${isEditing ? 
+                        `<button class="btn btn-row-save" onclick="closeEdit()">✅ OK</button>` : 
+                        `<button class="btn btn-edit" onclick="editRow(${rIdx})">📝 Edit</button>`
+                    }
+                </td>
+            `;
+            tr.innerHTML = html;
+            tbody.appendChild(tr);
+        });
+        updatePaginationUI();
+    }
+
+    function updateCell(rIdx, cIdx, element) {
+        let val = element.innerText.replace(/[^0-9.]/g, '');
+        allData[rIdx].vals[cIdx] = val;
+        
+        // Row Total हिसाब गर्ने
+        let rowSum = 0;
+        allData[rIdx].vals.forEach(v => rowSum += (parseFloat(v) || 0));
+        allData[rIdx].rowTotal = rowSum;
+
+        // UI मा मात्रै Total र Grand Total देखाउने (पूरा टेबल रि-रेन्डर नगरी)
+        const rows = document.querySelectorAll('#tableBody tr');
+        recalculateAll(); // डाटा अपडेट गर्ने
+
+        // अपडेट भएका भ्यालुहरूलाई सम्बन्धित सेलमा मात्रै हाल्ने
+        rows.forEach((row, index) => {
+            const dataIdx = (currentPage - 1) * recordsPerPage + index;
+            if(allData[dataIdx]) {
+                row.querySelector('.total-col').innerText = allData[dataIdx].rowTotal.toLocaleString();
+                row.querySelector('.grand-total-col').innerText = allData[dataIdx].grandTotal.toLocaleString();
+            }
+        });
+    }
+
+    function updateData(rIdx, key, val) { 
+        allData[rIdx][key] = val; 
+    }
+
+    function addNewRow() {
+        allData.push({ date: '', voucher: '', desc: '', vals: Array(28).fill(''), rowTotal: 0, grandTotal: 0 });
+        currentPage = Math.ceil(allData.length / recordsPerPage);
+        editingRowIdx = allData.length - 1;
+        renderTable();
+    }
+
+    function editRow(rIdx) {
+        editingRowIdx = rIdx;
+        renderTable();
+    }
+
+    function closeEdit() {
+        editingRowIdx = null;
+        renderTable();
+        showStatus("अस्थायी रूपमा राखियो।", "#f59e0b");
+    }
+
+    function manualSave() {
+        localStorage.setItem('sahakari_manual_db', JSON.stringify(allData));
+        showStatus("डाटा स्थायी रूपमा सेभ भयो! ✅", "#10b981");
+    }
+
+    function showStatus(msg, color) {
+        const s = document.getElementById('status-msg');
+        s.innerText = msg;
+        s.style.color = color;
+        setTimeout(() => { s.innerText = ""; }, 3000);
+    }
+
+    function changePage(dir) {
+        currentPage += dir;
+        editingRowIdx = null;
+        renderTable();
+    }
+
+    function updatePaginationUI() {
+        const totalPages = Math.ceil(allData.length / recordsPerPage) || 1;
+        document.getElementById('totalRecords').innerText = allData.length;
+        document.getElementById('pageInfo').innerText = `पेज ${currentPage} / ${totalPages}`;
+        document.getElementById('prevBtn').disabled = currentPage === 1;
+        document.getElementById('nextBtn').disabled = currentPage >= totalPages;
+    }
+
+    function exportExcel() {
+        recalculateAll();
+        const exportData = allData.map(d => {
+            let row = { "तारीख": d.date, "भाउचर": d.voucher, "विवरण": d.desc };
+            columnNames.forEach((name, i) => {
+                row[name] = d.vals[i];
+            });
+            row["कुल जम्मा"] = d.rowTotal;
+            row["Grand Total"] = d.grandTotal;
+            return row;
+        });
+        const wb = XLSX.utils.json_to_sheet(exportData);
+        const book = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(book, wb, "Ledger");
+        XLSX.writeFile(book, "Sahakari_Ledger_Final.xlsx");
+    }
+
+    setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleString('ne-NP'); }, 1000);
+    window.onload = renderTable;
+</script>
+
+</body>
+</html>

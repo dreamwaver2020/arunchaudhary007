@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dayetwa Khata - Independent System</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #1e293b; --accent: #3b82f6; --success: #10b981;
+            --danger: #ef4444; --bg-body: #f8fafc; --card-bg: #ffffff; --border: #cbd5e1;
+            --warning: #f59e0b;
+        }
+
+        body { font-family: 'Inter', 'Segoe UI', sans-serif; background: var(--bg-body); margin: 0; padding: 10px; color: #334155; font-size: 12px; }
+        .container { max-width: 99%; margin: auto; background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid var(--border); }
+        .app-header { background: linear-gradient(135deg, var(--primary), #334155); color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .toolbar { display: flex; gap: 10px; padding: 12px 25px; background: #fff; border-bottom: 2px solid #f1f5f9; align-items: center; position: sticky; left: 0; z-index: 100; }
+        
+        .btn { padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; display: flex; align-items: center; gap: 8px; font-size: 11px; transition: 0.3s; }
+        .btn-add { background: var(--accent); color: white; }
+        .btn-save { background: var(--warning); color: white; }
+        .btn-pdf { background: var(--danger); color: white; }
+        .btn-file { background: #6366f1; color: white; }
+
+        .table-wrapper { overflow-x: auto; max-height: 70vh; scrollbar-width: thin; position: relative; }
+        table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 3200px; }
+        
+        thead th { position: sticky; top: 0; z-index: 50; background: #f1f5f9; padding: 8px 4px; border: 1px solid var(--border); font-size: 11px; }
+
+        .sticky-col-1 { position: sticky; left: 0; z-index: 40; background: #f8fafc; border-right: 2px solid var(--border) !important; width: 120px; }
+        .sticky-col-2 { position: sticky; left: 120px; z-index: 40; background: #f8fafc; border-right: 2px solid var(--border) !important; width: 100px; }
+        
+        thead th.sticky-col-1, thead th.sticky-col-2 { z-index: 60; background: #e2e8f0; }
+
+        td { padding: 2px 4px; border: 1px solid #e2e8f0; height: 35px; }
+        input { width: 95%; padding: 6px; border: 1px solid transparent; text-align: center; font-size: 12px; background: transparent; outline: none; pointer-events: none; }
+        
+        tr.edit-mode { background: #f0f7ff !important; }
+        tr.edit-mode input { background: #ffffff; border: 1px solid var(--accent); pointer-events: auto; border-radius: 4px; }
+        
+        .baki-col { font-weight: 800; background: #f8fafc; text-align: center; color: var(--primary); }
+        .action-btn { padding: 5px 12px; border-radius: 6px; cursor: pointer; border: none; font-size: 11px; font-weight: bold; }
+        .edit-btn { background: #e2e8f0; color: #475569; }
+        .update-btn { background: var(--success); color: white; display: none; }
+
+        tfoot td { position: sticky; bottom: 0; background: var(--primary) !important; color: white; font-weight: bold; padding: 10px; z-index: 55; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="app-header">
+        <h1 style="margin:0; font-size: 20px;">📓 उद्गम बचत तथा ऋण सहकारी संस्था - (दायित्व खाता)</h1>
+        <div id="status" style="font-size: 11px; background: rgba(255,255,255,0.1); padding: 5px 10px; border-radius: 20px;">Dayetwa Database Active</div>
+    </div>
+
+    <div class="toolbar">
+        <button class="btn btn-add" onclick="addNewRow()">➕ नयाँ रो</button>
+        <button class="btn btn-save" onclick="manualSave()">💾 डेटा सेभ (Local)</button>
+        <button class="btn btn-file" onclick="downloadJSON()">📥 ब्याकअप फाइल डाउनलोड</button>
+        <button class="btn btn-pdf" onclick="exportPDF()">📄 PDF रिपोर्ट</button>
+        <button class="btn" style="background:var(--success); color:white" onclick="exportExcel()">📊 Excel</button>
+        
+        <div style="margin-left:auto; display:flex; gap:10px; align-items:center;">
+            <input type="text" id="ledgerSearch" style="pointer-events:auto; background:white; border:1px solid #ddd; padding:8px; border-radius:8px;" placeholder="🔎 खोज्नुहोस्" oninput="filterByLedger()">
+            <button class="btn" onclick="changePage(-1)">◀</button>
+            <span id="pageNumber" style="font-weight:bold">1</span>
+            <button class="btn" onclick="changePage(1)">▶</button>
+        </div>
+    </div>
+
+    <div class="table-wrapper">
+        <table id="accountTable">
+            <thead>
+                <tr>
+                    <th rowspan="2" class="sticky-col-1">मिति</th>
+                    <th rowspan="2" class="sticky-col-2">भौचर नं.</th>
+                    <th rowspan="2" style="width:250px">विवरण</th>
+                    <th colspan="3">शेयर (१०)</th><th colspan="3">कोष (२०)</th><th colspan="3">निक्षेप (३०)</th>
+                    <th colspan="3">सदस्य ऋण (४०)</th><th colspan="3">अनुदान (५०)</th><th colspan="3">भुक्तानी (६०)</th>
+                    <th colspan="3">अन्य (७०)</th>
+                    <th rowspan="2" style="background:#0f172a; color:#fff">कुल बाँकी</th>
+                    <th rowspan="2">Action</th>
+                </tr>
+                <tr>
+                    <th>Dr</th><th>Cr</th><th>Baki</th>
+                    <th>Dr</th><th>Cr</th><th>Baki</th>
+                    <th>Dr</th><th>Cr</th><th>Baki</th>
+                    <th>Dr</th><th>Cr</th><th>Baki</th>
+                    <th>Dr</th><th>Cr</th><th>Baki</th>
+                    <th>Dr</th><th>Cr</th><th>Baki</th>
+                    <th>Dr</th><th>Cr</th><th>Baki</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3" style="text-align:right">पेज कुल जम्मा:</td>
+                    <td id="gt-0">0</td><td id="gt-1">0</td><td>-</td>
+                    <td id="gt-3">0</td><td id="gt-4">0</td><td>-</td>
+                    <td id="gt-6">0</td><td id="gt-7">0</td><td>-</td>
+                    <td id="gt-9">0</td><td id="gt-10">0</td><td>-</td>
+                    <td id="gt-12">0</td><td id="gt-13">0</td><td>-</td>
+                    <td id="gt-15">0</td><td id="gt-16">0</td><td>-</td>
+                    <td id="gt-18">0</td><td id="gt-19">0</td><td>-</td>
+                    <td id="finalNet" style="background: #059669; text-align:center" colspan="2">0</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+<script>
+    // Alag Database Key taaki Kharcha Khata sanga mix nahos
+    const DB_KEY = 'sahakari_dayetwa_db_final';
+    let allData = [];
+    let filteredData = [];
+    let currentPage = 1;
+    const recordsPerPage = 12;
+
+    window.onload = function() {
+        const saved = localStorage.getItem(DB_KEY);
+        allData = saved ? JSON.parse(saved) : [emptyRowObject(1)];
+        filteredData = [...allData];
+        renderTable();
+    };
+
+    function emptyRowObject(vNum = "") {
+        return {
+            ledgerNo: '', voucher: vNum ? 'V-' + vNum : '', desc: '',
+            cols: Array(7).fill().map(() => ({ d: '', c: '' })),
+            baki: Array(7).fill(0), net: 0
+        };
+    }
+
+    function toggleEdit(btn, gIdx) {
+        const row = btn.closest('tr');
+        if (row.classList.contains('edit-mode')) {
+            row.classList.remove('edit-mode');
+            row.querySelector('.edit-btn').style.display = "inline-block";
+            row.querySelector('.update-btn').style.display = "none";
+            autoSave();
+            calc();
+        } else {
+            row.classList.add('edit-mode');
+            row.querySelector('.edit-btn').style.display = "none";
+            row.querySelector('.update-btn').style.display = "inline-block";
+        }
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById("tableBody");
+        tbody.innerHTML = "";
+        const start = (currentPage - 1) * recordsPerPage;
+        const pageData = filteredData.slice(start, start + recordsPerPage);
+        document.getElementById('pageNumber').innerText = currentPage;
+
+        pageData.forEach((data, index) => {
+            const gIdx = start + index;
+            const tr = document.createElement("tr");
+            tr.dataset.index = gIdx;
+            
+            let html = `
+                <td class="sticky-col-1"><input type="text" value="${data.ledgerNo}" oninput="updateValue(${gIdx}, 'ledgerNo', this.value)"></td>
+                <td class="sticky-col-2"><input type="text" value="${data.voucher}" oninput="updateValue(${gIdx}, 'voucher', this.value)"></td>
+                <td><input type="text" style="text-align:left" value="${data.desc}" oninput="updateValue(${gIdx}, 'desc', this.value)"></td>
+            `;
+            for(let i=0; i<7; i++) {
+                html += `
+                    <td><input type="number" value="${data.cols[i].d}" oninput="updateColValue(${gIdx}, ${i}, 'd', this.value)"></td>
+                    <td><input type="number" value="${data.cols[i].c}" oninput="updateColValue(${gIdx}, ${i}, 'c', this.value)"></td>
+                    <td class="baki-col b-${i}">${data.baki[i].toLocaleString()}</td>
+                `;
+            }
+            html += `
+                <td class="row-net" style="font-weight:bold; text-align:center">${data.net.toLocaleString()}</td>
+                <td style="text-align:center">
+                    <button class="action-btn edit-btn" onclick="toggleEdit(this, ${gIdx})">Edit</button>
+                    <button class="action-btn update-btn" onclick="toggleEdit(this, ${gIdx})">Update</button>
+                </td>
+            `;
+            tr.innerHTML = html;
+            tbody.appendChild(tr);
+        });
+        calc();
+    }
+
+    function updateValue(idx, key, val) { allData[idx][key] = val; }
+    function updateColValue(idx, colIdx, type, val) { allData[idx].cols[colIdx][type] = val; }
+
+    function calc() {
+        let runningTotals = Array(7).fill(0);
+        let pageTotals = Array(21).fill(0);
+        allData.forEach((row, idx) => {
+            row.cols.forEach((col, i) => {
+                let d = parseFloat(col.d) || 0;
+                let c = parseFloat(col.c) || 0;
+                runningTotals[i] += (d - c);
+                row.baki[i] = runningTotals[i];
+                let isCurrentPage = (idx >= (currentPage-1)*recordsPerPage && idx < currentPage*recordsPerPage);
+                if(isCurrentPage) {
+                    pageTotals[i*3] += d; pageTotals[i*3+1] += c;
+                    const tr = document.querySelector(`tr[data-index="${idx}"]`);
+                    if(tr) tr.querySelector(`.b-${i}`).innerText = runningTotals[i].toLocaleString();
+                }
+            });
+            row.net = runningTotals.reduce((a, b) => a + b, 0);
+            const tr = document.querySelector(`tr[data-index="${idx}"]`);
+            if(tr) tr.querySelector('.row-net').innerText = row.net.toLocaleString();
+        });
+        for(let j=0; j<21; j++) {
+            let f = document.getElementById(`gt-${j}`);
+            if(f) f.innerText = pageTotals[j].toLocaleString();
+        }
+        document.getElementById('finalNet').innerText = runningTotals.reduce((a, b) => a + b, 0).toLocaleString();
+    }
+
+    function manualSave() { autoSave(); alert("Dayetwa Khata data saved!"); }
+    function autoSave() { localStorage.setItem(DB_KEY, JSON.stringify(allData)); }
+    
+    function downloadJSON() {
+        const blob = new Blob([JSON.stringify(allData)], {type: "application/json"});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = "Dayetwa_Khata_Backup.json";
+        a.click();
+    }
+
+    function exportPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('l', 'mm', 'a3');
+        doc.text("उद्गम बचत तथा ऋण सहकारी संस्था - दायित्व खाता", 15, 15);
+        doc.autoTable({ html: '#accountTable', startY: 20, theme: 'grid', styles: { fontSize: 7 } });
+        doc.save("Dayetwa_Report.pdf");
+    }
+
+    function exportExcel() {
+        const wb = XLSX.utils.table_to_book(document.getElementById("accountTable"));
+        XLSX.writeFile(wb, "Dayetwa_Ledger.xlsx");
+    }
+
+    function addNewRow() {
+        allData.push(emptyRowObject(allData.length + 1));
+        filteredData = [...allData];
+        currentPage = Math.ceil(filteredData.length / recordsPerPage);
+        renderTable();
+    }
+
+    function changePage(dir) {
+        const max = Math.ceil(filteredData.length / recordsPerPage) || 1;
+        if (currentPage + dir >= 1 && currentPage + dir <= max) { currentPage += dir; renderTable(); }
+    }
+
+    function filterByLedger() {
+        const q = document.getElementById('ledgerSearch').value.toLowerCase();
+        filteredData = q ? allData.filter(d => d.ledgerNo.toLowerCase().includes(q)) : [...allData];
+        currentPage = 1;
+        renderTable();
+    }
+</script>
+
+</body>
+</html>

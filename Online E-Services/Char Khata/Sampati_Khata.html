@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Sahakari Ledger Pro - Manager Edition</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #1e293b; --accent: #3b82f6; --success: #10b981;
+            --danger: #ef4444; --bg-body: #f8fafc; --card-bg: #ffffff; --border: #cbd5e1;
+            --warning: #f59e0b;
+        }
+
+        body { 
+            font-family: 'Inter', 'Segoe UI', sans-serif; 
+            background: var(--bg-body); 
+            margin: 0; padding: 10px; color: #334155; font-size: 12px;
+        }
+
+        .container {
+            max-width: 99%; margin: auto; background: var(--card-bg);
+            border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            overflow: hidden; border: 1px solid var(--border);
+        }
+
+        .app-header {
+            background: linear-gradient(135deg, var(--primary), #334155); 
+            color: white; padding: 15px 25px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .toolbar {
+            display: flex; gap: 10px; padding: 12px 25px;
+            background: #fff; border-bottom: 2px solid #f1f5f9;
+            align-items: center; flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 16px; border-radius: 8px; font-weight: 600;
+            cursor: pointer; border: none; display: flex; align-items: center;
+            gap: 8px; font-size: 11px; transition: all 0.3s ease;
+        }
+        .btn-add { background: var(--accent); color: white; }
+        .btn-save { background: var(--warning); color: white; }
+        .btn-pdf { background: var(--danger); color: white; }
+        .btn-excel { background: var(--success); color: white; }
+        .btn-print { background: #64748b; color: white; }
+
+        .search-box {
+            padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px;
+            font-size: 12px; width: 180px; outline: none;
+        }
+
+        .table-wrapper { overflow-x: auto; max-height: 65vh; scrollbar-width: thin; }
+        table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 3200px; }
+
+        thead th {
+            position: sticky; top: 0; z-index: 20; background: #f1f5f9;
+            padding: 8px 4px; border-bottom: 2px solid var(--border);
+            border-right: 1px solid var(--border); font-size: 11px; color: #475569;
+        }
+
+        td { padding: 2px 4px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; height: 28px; }
+
+        input {
+            width: 90%; padding: 4px; border: 1px solid transparent;
+            text-align: center; font-size: 12px; background: transparent; outline: none;
+            pointer-events: none;
+        }
+
+        tr.edit-mode { background: #eff6ff; }
+        tr.edit-mode input { background: #fff; border: 1px solid var(--accent); pointer-events: auto; border-radius: 4px; }
+
+        .baki-col { font-weight: 800; background: #f8fafc; color: var(--primary); text-align: center; }
+        .neg-val { color: var(--danger) !important; }
+
+        .action-btn {
+            padding: 4px 10px; border-radius: 5px; cursor: pointer; border: none; font-size: 11px; font-weight: bold;
+        }
+        .edit-btn { background: #e2e8f0; color: #475569; }
+        .update-btn { background: var(--success); color: white; display: none; }
+
+        .pagination-container { display: flex; gap: 10px; align-items: center; margin-left: auto; }
+
+        tfoot td {
+            position: sticky; bottom: 0; background: var(--primary) !important;
+            color: white; font-weight: bold; padding: 10px; z-index: 30;
+        }
+        .grand-total { background: #059669 !important; text-align: center; }
+
+        @media print {
+            .toolbar, .app-header, .action-cell { display: none !important; }
+            .container { box-shadow: none; border: none; }
+            .table-wrapper { max-height: none; overflow: visible; }
+            table { min-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="app-header">
+        <h1 style="margin:0; font-size: 20px;">📓 उद्गम बचत तथा ऋण सहकारी संस्था, सुनसरी- (सम्पत्ति खाता)<span style="font-size: 10px; background: rgba(232, 240, 238, 0.2); padding: 3px 8px; border-radius: 12px;">फारम नम्बर ४ (फा.नं ४)</span></h1>
+        <div id="clock"></div>
+    </div>
+
+    <div class="toolbar">
+        <button class="btn btn-add" onclick="addNewRow()">➕ नयाँ रो थप्नुहोस्</button>
+        <button class="btn btn-save" onclick="manualSave()">💾 सबै सेभ गर्नुहोस्</button>
+        <button class="btn btn-pdf" onclick="exportPDF()">📄 PDF रिपोर्ट</button>
+        <button class="btn btn-excel" onclick="exportExcel()">📊 Excel निर्यात</button>
+        <button class="btn btn-print" onclick="window.print()">🖨️ प्रिन्ट</button>
+        
+        <input type="text" id="ledgerSearch" class="search-box" placeholder="🔎 Ledger No. खोज्नुहोस्" oninput="filterByLedger()">
+
+        <div class="pagination-container">
+            <button class="btn" style="background:#64748b; color:white" onclick="changePage(-1)">◀ अघिल्लो</button>
+            <span style="font-weight:bold">पेज: <span id="pageNumber">1</span></span>
+            <button class="btn" style="background:#64748b; color:white" onclick="changePage(1)">पछिल्लो ▶</button>
+        </div>
+    </div>
+
+    <div class="table-wrapper">
+        <table id="accountTable">
+            <thead>
+                <tr>
+                    <th rowspan="2" style="width:140px">मिति</th>
+                    <th rowspan="2" style="width:100px">भौचर नं. / महिना</th>
+                    <th rowspan="2" style="width:250px">विवरण</th>
+                    <th colspan="3">नगद हिसाब  (८०)</th><th colspan="3">बैंक हिसाब  (९०)</th>
+                    <th colspan="3">लगानी हिसाब (१००)</th><th colspan="3">सदस्यहरूलाई दिइएको ऋण हिसाब (११०)</th>
+                    <th colspan="3">पाउनुपर्ने हिसाब (१२०)</th><th colspan="3">फर्निचर, सेफ, अफिस, माल, सवारी, साधन, घर जग्गा, जमिन हिसाब (१३०)</th>
+                    <th colspan="3">अन्य सम्पत्ति तथा सामान हिसाब (१४०)</th>
+                    <th rowspan="2" style="background:#0f172a; color:#fff">कुल बाँकी रकम (डेबिट)</th>
+                    <th rowspan="2" class="action-cell" style="width: 100px;">Action</th>
+                </tr>
+                <tr>
+                    <th>डेबिट (Dr)</th><th>क्रेडिट (Cr)</th><th>बाँकी रकम</th>
+                    <th>डेबिट (Dr)</th><th>क्रेडिट (Cr)</th><th>बाँकी रकम</th>
+                    <th>डेबिट (Dr)</th><th>क्रेडिट (Cr)</th><th>बाँकी रकम</th>
+                    <th>डेबिट (Dr)</th><th>क्रेडिट (Cr)</th><th>बाँकी रकम</th>
+                    <th>डेबिट (Dr)</th><th>क्रेडिट (Cr)</th><th>बाँकी रकम</th>
+                    <th>डेबिट (Dr)</th><th>क्रेडिट (Cr)</th><th>बाँकी रकम</th>
+                    <th>डेबिट (Dr)</th><th>क्रेडिट (Cr)</th><th>बाँकी रकम</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3" style="text-align:right">पेज कुल जम्मा:</td>
+                    <td id="gt-0">0</td><td id="gt-1">0</td><td>-</td>
+                    <td id="gt-3">0</td><td id="gt-4">0</td><td>-</td>
+                    <td id="gt-6">0</td><td id="gt-7">0</td><td>-</td>
+                    <td id="gt-9">0</td><td id="gt-10">0</td><td>-</td>
+                    <td id="gt-12">0</td><td id="gt-13">0</td><td>-</td>
+                    <td id="gt-15">0</td><td id="gt-16">0</td><td>-</td>
+                    <td id="gt-18">0</td><td id="gt-19">0</td><td>-</td>
+                    <td id="finalNet" class="grand-total" colspan="2">0</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+<script>
+    let allData = [];
+    let filteredData = [];
+    let currentPage = 1;
+    const recordsPerPage = 13;
+
+    function updateClock() { document.getElementById('clock').innerText = new Date().toLocaleTimeString('ne-NP'); }
+    setInterval(updateClock, 1000);
+
+    window.onload = function() {
+        const saved = localStorage.getItem('sahakari_pro_db_v5');
+        if (saved) {
+            allData = JSON.parse(saved);
+        } else {
+            for(let i=0; i<5; i++) allData.push(emptyRowObject(i+1));
+        }
+        filteredData = [...allData];
+        renderTable();
+    };
+
+    function emptyRowObject(vNum = "") {
+        return {
+            ledgerNo: '', voucher: vNum ? 'V-' + vNum : '', desc: '',
+            cols: Array(7).fill().map(() => ({ d: '', c: '' })),
+            baki: Array(7).fill(0), net: 0
+        };
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById("tableBody");
+        tbody.innerHTML = "";
+        const start = (currentPage - 1) * recordsPerPage;
+        const end = start + recordsPerPage;
+        const pageData = filteredData.slice(start, end);
+
+        document.getElementById('pageNumber').innerText = currentPage;
+
+        pageData.forEach((data, index) => {
+            const tr = createRowHTML(data, start + index);
+            tbody.appendChild(tr);
+        });
+        calc();
+    }
+
+    function createRowHTML(data, globalIndex) {
+        const tr = document.createElement("tr");
+        tr.dataset.index = globalIndex;
+        let html = `
+            <td><input type="text" value="${data.ledgerNo}" oninput="updateValue(${globalIndex}, 'ledgerNo', this.value)"></td>
+            <td><input type="text" value="${data.voucher}" oninput="updateValue(${globalIndex}, 'voucher', this.value)"></td>
+            <td><input type="text" style="text-align:left" value="${data.desc}" oninput="updateValue(${globalIndex}, 'desc', this.value)"></td>
+        `;
+        for(let i=0; i<7; i++) {
+            html += `
+                <td><input type="number" value="${data.cols[i].d}" oninput="updateColValue(${globalIndex}, ${i}, 'd', this.value)"></td>
+                <td><input type="number" value="${data.cols[i].c}" oninput="updateColValue(${globalIndex}, ${i}, 'c', this.value)"></td>
+                <td class="baki-col b-${i}">${data.baki[i].toLocaleString()}</td>
+            `;
+        }
+        html += `
+            <td class="row-net" style="font-weight:bold; text-align:center">${data.net.toLocaleString()}</td>
+            <td class="action-cell" style="text-align:center">
+                <button class="action-btn edit-btn" onclick="toggleEdit(this, ${globalIndex})">Edit</button>
+                <button class="action-btn update-btn" onclick="toggleEdit(this, ${globalIndex})">Update</button>
+            </td>
+        `;
+        tr.innerHTML = html;
+        return tr;
+    }
+
+    function updateValue(idx, key, val) {
+        filteredData[idx][key] = val;
+        autoSave();
+    }
+
+    function updateColValue(idx, colIdx, type, val) {
+        filteredData[idx].cols[colIdx][type] = val;
+        calc();
+        autoSave();
+    }
+
+    function toggleEdit(btn, idx) {
+        const row = btn.closest('tr');
+        const editBtn = row.querySelector('.edit-btn');
+        const updateBtn = row.querySelector('.update-btn');
+
+        if (row.classList.contains('edit-mode')) {
+            row.classList.remove('edit-mode');
+            editBtn.style.display = "inline-block";
+            updateBtn.style.display = "none";
+            autoSave();
+        } else {
+            row.classList.add('edit-mode');
+            editBtn.style.display = "none";
+            updateBtn.style.display = "inline-block";
+        }
+    }
+
+    function calc() {
+        let runningTotals = Array(7).fill(0);
+        let pageTotals = Array(21).fill(0);
+
+        filteredData.forEach((row, idx) => {
+            row.cols.forEach((col, i) => {
+                let d = parseFloat(col.d) || 0;
+                let c = parseFloat(col.c) || 0;
+                runningTotals[i] += (d - c);
+                row.baki[i] = runningTotals[i];
+
+                let isCurrentPage = (idx >= (currentPage-1)*recordsPerPage && idx < currentPage*recordsPerPage);
+                if(isCurrentPage) {
+                    pageTotals[i*3] += d; pageTotals[i*3+1] += c;
+                    const tr = document.querySelector(`tr[data-index="${idx}"]`);
+                    if(tr) tr.querySelector(`.b-${i}`).innerText = runningTotals[i].toLocaleString();
+                }
+            });
+            row.net = runningTotals.reduce((a, b) => a + b, 0);
+            const tr = document.querySelector(`tr[data-index="${idx}"]`);
+            if(tr) tr.querySelector('.row-net').innerText = row.net.toLocaleString();
+        });
+
+        for(let j=0; j<21; j++) {
+            let f = document.getElementById(`gt-${j}`);
+            if(f) f.innerText = pageTotals[j].toLocaleString();
+        }
+        document.getElementById('finalNet').innerText = runningTotals.reduce((a, b) => a + b, 0).toLocaleString();
+    }
+
+    function filterByLedger() {
+        const query = document.getElementById('ledgerSearch').value.toLowerCase();
+        filteredData = query ? allData.filter(d => d.ledgerNo.toLowerCase().includes(query)) : [...allData];
+        currentPage = 1;
+        renderTable();
+    }
+
+    function addNewRow() {
+        const newRow = emptyRowObject(allData.length + 1);
+        allData.push(newRow);
+        filteredData = [...allData];
+        currentPage = Math.ceil(filteredData.length / recordsPerPage);
+        renderTable();
+        autoSave();
+    }
+
+    function changePage(dir) {
+        const max = Math.ceil(filteredData.length / recordsPerPage) || 1;
+        if (currentPage + dir >= 1 && currentPage + dir <= max) {
+            currentPage += dir;
+            renderTable();
+        }
+    }
+
+    function manualSave() { autoSave(); alert("सबै डाटा सुरक्षित गरियो!"); }
+    function autoSave() { localStorage.setItem('sahakari_pro_db_v5', JSON.stringify(allData)); }
+
+    function exportExcel() {
+        const wb = XLSX.utils.table_to_book(document.getElementById("accountTable"));
+        XLSX.writeFile(wb, "Sahakari_Ledger.xlsx");
+    }
+
+    function exportPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('l', 'mm', 'a3');
+        doc.autoTable({ html: '#accountTable', theme: 'grid', styles: { fontSize: 7 } });
+        doc.save("Sahakari_Report.pdf");
+    }
+</script>
+
+</body>
+</html>

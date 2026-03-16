@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="ne">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>𝓑𝓪𝓷𝓴 𝓢𝓽𝓪𝓽𝓮𝓶𝓮𝓷𝓽</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; }
+    .hidden-row { display:none; }
+    .pagination-btn { padding: 6px 10px; border: 1px solid #ccc; border-radius: 6px; margin: 0 3px; }
+    .pagination-btn.active { background-color: #0284c7; color: white; }
+     /* smaller table text */
+    table, th, td { font-size: 0.80rem; } /* reduced from normal */
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen antialiased">
+  <div class="max-w-6xl mx-auto p-6">
+    <header class="mb-6">
+      <h1 class="text-2xl font-bold text-sky-700">𝓑𝓪𝓷𝓴 𝓢𝓽𝓪𝓽𝓮𝓶𝓮𝓷𝓽</h1>
+      <p class="text-sm text-gray-600">𝐂𝐥𝐢𝐜𝐤 "𝐕𝐢𝐞𝐰" 𝐭𝐨 𝐬𝐞𝐞 𝐝𝐞𝐭𝐚𝐢𝐥𝐞𝐝 𝐭𝐫𝐚𝐧𝐬𝐚𝐜𝐭𝐢𝐨𝐧𝐬. (<span id="storageKey" class="mono"></span>)</p>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <main class="lg:col-span-3 bg-white p-6 rounded-2xl shadow">
+        <div class="flex gap-3 mb-4">
+          <input id="globalSearch" placeholder="Search bank, date, txn id, type, amount..." class="flex-1 p-2 border rounded" />
+          <select id="bankFilter" class="p-2 border rounded">
+            <option value="">— All Banks —</option>
+          </select>
+          <button id="exportAllBtn" class="px-4 py-2 bg-sky-600 text-white rounded">Export All CSV</button>
+          <button id="savePdfBtn" class="px-4 py-2 bg-rose-600 text-white rounded">Save PDF</button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full table-auto border-collapse">
+            <thead>
+              <tr class="text-left text-sm text-gray-500 border-b">
+                <th class="p-2">#</th>
+                <th class="p-2">Bank</th>
+                <th class="p-2">Date</th>
+                <th class="p-2 text-right">Opening</th>
+                <th class="p-2 text-right">Total Receipt</th>
+                <th class="p-2 text-right">Total Payment</th>
+                <th class="p-2 text-right">Closing</th>
+                <th class="p-2">Txns</th>
+                <th class="p-2">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="rowsBody">
+              <tr><td colspan="9" class="p-4 text-center text-gray-500">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="flex justify-center mt-4" id="pagination"></div>
+      </main>
+
+      <aside class="bg-white p-6 rounded-2xl shadow">
+        <div class="mb-4">
+          <h3 class="text-sm font-semibold text-gray-700">Stats</h3>
+          <div class="mt-3 text-sm text-gray-600">
+            <div>Rows: <span id="rowsCount" class="mono">0</span></div>
+            <div>Total Receipt: <span id="sumReceipt" class="mono">0.00</span></div>
+            <div>Total Payment: <span id="sumPayment" class="mono">0.00</span></div>
+            <div>Net: <span id="netTotal" class="mono">0.00</span></div>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <h4 class="text-sm font-medium text-gray-700 mb-2">Selected Transaction Details</h4>
+          <div id="txnDetails" class="text-sm text-gray-700 mono text-xs">No selection</div>
+        </div>
+
+        <div>
+          <h4 class="text-sm font-medium text-gray-700 mb-2">Quick Filters</h4>
+          <div class="space-y-2 text-sm">
+            <button class="quickFilterBtn px-3 py-1 border rounded" data-val="">All</button>
+            <button class="quickFilterBtn px-3 py-1 border rounded" data-val="receipt">Receipts</button>
+            <button class="quickFilterBtn px-3 py-1 border rounded" data-val="payment">Payments</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <footer class="mt-6 text-sm text-gray-500 text-center">This statement is powered by dreamwaver under copyright 2025.</footer>
+  </div>
+
+<script>
+(function(){
+  const STORAGE_KEY = 'bank_stmt_final_v1';
+  document.getElementById('storageKey').textContent = STORAGE_KEY;
+
+  const rowsBody = document.getElementById('rowsBody');
+  const rowsCount = document.getElementById('rowsCount');
+  const sumReceiptEl = document.getElementById('sumReceipt');
+  const sumPaymentEl = document.getElementById('sumPayment');
+  const netTotalEl = document.getElementById('netTotal');
+  const txnDetails = document.getElementById('txnDetails');
+  const globalSearch = document.getElementById('globalSearch');
+  const bankFilter = document.getElementById('bankFilter');
+  const exportAllBtn = document.getElementById('exportAllBtn');
+  const savePdfBtn = document.getElementById('savePdfBtn');
+  const pagination = document.getElementById('pagination');
+
+  let summaries = [];
+  let quickType = '';
+  let currentPage = 1;
+  const recordsPerPage = 10;
+
+  function load(){
+    const raw = localStorage.getItem(STORAGE_KEY);
+    summaries = raw ? JSON.parse(raw) : [];
+
+    // sort by date descending (recent first)
+    summaries.sort((a,b)=> new Date(b.date) - new Date(a.date) || a.bank.localeCompare(b.bank));
+
+    populateBankFilter();
+    render();
+  }
+
+  function populateBankFilter(){
+    const banks = Array.from(new Set(summaries.map(s=>s.bank))).sort();
+    bankFilter.innerHTML = '<option value="">— All Banks —</option>' + banks.map(b=>`<option value="${b}">${b}</option>`).join('');
+  }
+
+  function formatMoney(n){ return Number(n||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); }
+  function escapeHtml(s){ return (s+'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function escapeForId(s){ return (s||'').replace(/[^a-z0-9_-]/ig,'_'); }
+
+  function render(){
+    const q = (globalSearch.value||'').toLowerCase().trim();
+    const bankVal = bankFilter.value;
+
+    let visible = summaries.filter(s=>{
+      if(bankVal && s.bank !== bankVal) return false;
+      if(quickType){
+        const has = (s.details||[]).some(d=>d.type===quickType);
+        if(!has) return false;
+      }
+      if(!q) return true;
+      if(`${s.bank} ${s.date}`.toLowerCase().includes(q)) return true;
+      for(const d of s.details||[]){
+        if(d.id && d.id.toLowerCase().includes(q)) return true;
+        if(d.type && d.type.toLowerCase().includes(q)) return true;
+        if(String(d.amount).toLowerCase().includes(q)) return true;
+      }
+      return false;
+    });
+
+    // descending order already applied
+    const totalPages = Math.ceil(visible.length / recordsPerPage);
+    if (currentPage > totalPages) currentPage = 1;
+    const start = (currentPage - 1) * recordsPerPage;
+    const end = start + recordsPerPage;
+    const pageData = visible.slice(start, end);
+
+    if(!pageData.length){
+      rowsBody.innerHTML = '<tr><td colspan="9" class="p-4 text-center text-gray-500">No records found.</td></tr>';
+      rowsCount.textContent = 0;
+      sumReceiptEl.textContent = '0.00';
+      sumPaymentEl.textContent = '0.00';
+      netTotalEl.textContent = '0.00';
+      pagination.innerHTML = '';
+      return;
+    }
+
+    let html = '';
+    let totalReceipt = 0, totalPayment=0, net=0;
+    let idx = start;
+    for(const s of pageData){
+      idx++;
+      totalReceipt += Number(s.totalReceipt||0);
+      totalPayment += Number(s.totalPayment||0);
+      net += (Number(s.closing||0) - Number(s.opening||0));
+      const rowId = `row-${idx}`;
+      html += `<tr class="border-b">
+        <td class="p-2 align-top">${idx}</td>
+        <td class="p-2 align-top">${s.bank}</td>
+        <td class="p-2 align-top mono">${s.date}</td>
+        <td class="p-2 text-right mono">${formatMoney(s.opening)}</td>
+        <td class="p-2 text-right mono">${formatMoney(s.totalReceipt)}</td>
+        <td class="p-2 text-right mono">${formatMoney(s.totalPayment)}</td>
+        <td class="p-2 text-right mono">${formatMoney(s.closing)}</td>
+        <td class="p-2 align-top"><button class="viewTxnsBtn px-2 py-1 border rounded" data-bank="${escapeHtml(s.bank)}" data-date="${s.date}">View (${(s.details||[]).length})</button></td>
+        <td class="p-2 align-top"><button class="exportRowBtn px-2 py-1 border rounded" data-bank="${escapeHtml(s.bank)}" data-date="${s.date}">✔️</button></td>
+      </tr>
+      <tr class="hidden-row" id="details-${escapeForId(s.bank)}-${s.date}">
+        <td colspan="9" class="p-3 bg-gray-50">
+          <div class="text-sm mb-2"><strong>Transactions for ${s.bank} — ${s.date}:</strong></div>
+          <ul class="text-xs mono" id="txn-list-${escapeForId(s.bank)}-${s.date}">
+            ${(s.details||[]).map(d=>`<li class="mb-1">${d.time} — ${d.type.toUpperCase()} ${formatMoney(d.amount)}
+                <button class="delTxnBtn ml-2 text-red-600" data-bank="${escapeHtml(s.bank)}" data-date="${s.date}" data-id="${d.id}">Delete</button>
+                <button class="showTxnBtn ml-1 px-1 py-0.5 text-xs border rounded" data-json='${escapeHtml(JSON.stringify(d))}'>Show</button>
+              </li>`).join('') || '<li class="text-gray-500">No details</li>'}
+          </ul>
+        </td>
+      </tr>`;
+    }
+
+    rowsBody.innerHTML = html;
+    rowsCount.textContent = visible.length;
+    sumReceiptEl.textContent = formatMoney(totalReceipt);
+    sumPaymentEl.textContent = formatMoney(totalPayment);
+    netTotalEl.textContent = formatMoney(net);
+
+    renderPagination(totalPages);
+
+    document.querySelectorAll('.viewTxnsBtn').forEach(btn=>{
+      btn.onclick=e=>{
+        const bank=e.currentTarget.dataset.bank, date=e.currentTarget.dataset.date;
+        const el=document.getElementById(`details-${escapeForId(bank)}-${date}`);
+        el.style.display=(el.style.display==='table-row')?'none':'table-row';
+      };
+    });
+
+    document.querySelectorAll('.delTxnBtn').forEach(btn=>{
+      btn.onclick=e=>{
+        const {bank,date,id}=e.currentTarget.dataset;
+        if(!confirm('Delete this transaction?'))return;
+        const s=summaries.find(x=>x.bank===bank&&x.date===date);
+        if(!s)return;
+        s.details=s.details.filter(d=>d.id!==id);
+        save();
+      };
+    });
+
+    document.querySelectorAll('.showTxnBtn').forEach(btn=>{
+      btn.onclick=e=>{
+        txnDetails.textContent=JSON.stringify(JSON.parse(e.currentTarget.dataset.json),null,2);
+      };
+    });
+
+    document.querySelectorAll('.exportRowBtn').forEach(btn=>{
+      btn.onclick=e=>{
+        const {bank,date}=e.currentTarget.dataset;
+        const s=summaries.find(x=>x.bank===bank&&x.date===date);
+        if(!s)return;
+        const rows=[['Bank','Date','Opening','TotalReceipt','TotalPayment','Closing'],
+        [s.bank,s.date,s.opening,s.totalReceipt,s.totalPayment,s.closing],[],
+        ['Bank','Date','TxnID','Time','Type','Amount'],
+        ...(s.details||[]).map(d=>[s.bank,s.date,d.id,d.time,d.type,d.amount])];
+        downloadCSV(rows,`bank_${s.bank}_${s.date}.csv`);
+      };
+    });
+  }
+
+  function renderPagination(totalPages){
+    if(totalPages <= 1){ pagination.innerHTML = ''; return; }
+    let html = '';
+    html += `<button class="pagination-btn" ${currentPage===1?'disabled':''} onclick="changePage(${currentPage-1})">Prev</button>`;
+    for(let i=1;i<=totalPages;i++){
+      html += `<button class="pagination-btn ${i===currentPage?'active':''}" onclick="changePage(${i})">${i}</button>`;
+    }
+    html += `<button class="pagination-btn" ${currentPage===totalPages?'disabled':''} onclick="changePage(${currentPage+1})">Next</button>`;
+    pagination.innerHTML = html;
+  }
+
+  window.changePage = function(page){
+    currentPage = page;
+    render();
+  };
+
+  function downloadCSV(rows,filename){
+    const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob=new Blob([csv],{type:'text/csv'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download=filename;a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function save(){
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(summaries));
+    load();
+  }
+
+  globalSearch.oninput=render;
+  bankFilter.onchange=render;
+  document.querySelectorAll('.quickFilterBtn').forEach(b=>b.onclick=e=>{quickType=e.target.dataset.val;render();});
+  exportAllBtn.onclick=()=>{
+    const rows=[['Bank','Date','Opening','Receipt','Payment','Closing']];
+    summaries.forEach(s=>rows.push([s.bank,s.date,s.opening,s.totalReceipt,s.totalPayment,s.closing]));
+    downloadCSV(rows,'all_records.csv');
+  };
+
+  savePdfBtn.onclick=()=>{
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({orientation:'landscape',unit:'pt',format:'a4'});
+    pdf.text('All Bank Records',40,30);
+    const tableData = summaries.map(s=>[s.bank,s.date,s.opening,s.totalReceipt,s.totalPayment,s.closing]);
+    pdf.autoTable({ head:[['Bank','Date','Opening','Receipt','Payment','Closing']], body:tableData, startY:50 });
+    pdf.save('bank_records.pdf');
+  };
+
+  load();
+})();
+</script>
+</body>
+</html>

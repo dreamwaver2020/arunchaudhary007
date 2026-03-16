@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <title>Premium Collector Dashboard - Advanced Search</title>
+    <style>
+        :root { 
+            --primary: #1e3a8a; 
+            --secondary: #3b82f6;
+            --bg: #f0f4f8; 
+            --text-dark: #1e293b;
+            --text-light: #475569;
+            --success: #059669;
+        }
+
+        body { 
+            font-family: 'Inter', 'Segoe UI', sans-serif; 
+            padding: 15px; background: var(--bg); 
+            color: var(--text-dark); font-size: 12px;
+        }
+
+        .container { max-width: 1400px; margin: auto; background: white; padding: 20px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+
+        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .title { color: var(--primary); font-size: 1.4rem; font-weight: 800; margin: 0; }
+
+        .btn-group { display: flex; gap: 10px; align-items: center; }
+        .refresh-status { font-size: 10px; color: var(--text-light); font-style: italic; }
+
+        .filter-card {
+            background: #ffffff; border: 1px solid #e2e8f0; padding: 15px;
+            border-radius: 12px; display: flex; flex-direction: column; gap: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02); margin-bottom: 25px;
+        }
+        .search-row { display: flex; gap: 15px; justify-content: center; }
+        .filter-card input { padding: 10px 15px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13px; outline: none; width: 300px; }
+        .search-hint { font-size: 11px; color: #64748b; text-align: center; margin-top: 5px; }
+
+        #statementList {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .date-card {
+            background: white; border-radius: 10px; padding: 12px; cursor: pointer; 
+            transition: 0.3s; position: relative; border: 1px solid #e2e8f0;
+            border-left: 6px solid #3b82f6;
+        }
+        .date-card:nth-child(even) { border-left-color: #10b981; }
+        .date-card:nth-child(3n) { border-left-color: #f59e0b; }
+
+        .date-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); background: #fafafa; }
+        .date-card h3 { margin: 0 0 6px 0; color: #334155; font-size: 14px; }
+        
+        .summary-box { display: flex; flex-direction: column; gap: 4px; font-size: 11px; color: var(--text-light); }
+        .summary-row { display: flex; justify-content: space-between; border-bottom: 1px dashed #eee; padding-bottom: 2px; }
+
+        .modal {
+            display: none; position: fixed; z-index: 9999; 
+            left: 0; top: 0; width: 100%; height: 100%; 
+            background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(8px);
+        }
+        .modal-content {
+            background: white; margin: 1% auto; padding: 25px;
+            width: 95%; height: 90vh; border-radius: 16px; overflow-y: auto;
+        }
+        .close-btn { float: right; font-size: 28px; font-weight: bold; cursor: pointer; color: #ef4444; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background: #f8fafc; padding: 10px; text-align: right; border-bottom: 2px solid #e2e8f0; font-size: 11px; color: #1e3a8a; border: 1px solid #e2e8f0; }
+        td { padding: 8px; border-bottom: 1px solid #f1f5f9; text-align: right; font-size: 12px; font-weight: 500; border: 1px solid #f1f5f9; }
+        .name-td { text-align: left; font-weight: 600; color: var(--primary); }
+        .highlight-search { background-color: #fef08a !important; font-weight: bold; }
+
+        .grand-total-row { background: #1e3a8a !important; color: white !important; font-weight: 800 !important; }
+        .grand-total-row td { color: white !important; background: #1e3a8a !important; }
+
+        .pagination { 
+            display: flex; justify-content: center; align-items: center; 
+            gap: 8px; margin-top: 30px; padding: 15px; border-top: 1px solid #e2e8f0;
+        }
+        .pg-btn { 
+            padding: 8px 16px; border: 1px solid #cbd5e1; background: white; 
+            border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600;
+        }
+        .pg-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .pg-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        @media (max-width: 1000px) { #statementList { grid-template-columns: 1fr; } }
+        @media print { .no-print { display: none !important; } .modal { display: block; position: relative; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-flex no-print">
+        <h1 class="title">𝐂𝐨𝐥𝐥𝐞𝐜𝐭𝐨𝐫 𝐒𝐭𝐚𝐭𝐞𝐦𝐞𝐧𝐭 𝐃𝐚𝐬𝐡𝐛𝐨𝐚𝐫𝐝</h1>
+        <div class="btn-group">
+            <span id="lastRefreshed" class="refresh-status">अपडेट हुँदैछ...</span>
+            <button class="pg-btn" style="background:var(--secondary); color:white; border:none;" onclick="renderReport()">🔄 ताजा गर्नुहोस्</button>
+            <button class="pg-btn" style="background:var(--success); color:white; border:none;" onclick="window.print()">🖨️ प्रिन्ट गर्नुहोस्</button>
+        </div>
+    </div>
+
+    <div class="filter-card no-print">
+        <div class="search-row">
+            <input type="text" id="masterSearch" placeholder="नाम, रकम (Esewa, Cash आदि) बाट खोज्नुहोस्..." onkeyup="renderReport()">
+            <input type="date" id="searchDate" onchange="renderReport()">
+        </div>
+        <div class="search-hint">सुझाव: <b>"esewa"</b> वा <b>"cash"</b> टाइप गरेर शिर्षक अनुसार सर्च गर्नुहोस्।</div>
+    </div>
+
+    <div id="statementList"></div>
+    <div id="pagination" class="pagination no-print"></div>
+</div>
+
+<div id="detailModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <h2 id="modalTitle" style="color:var(--primary); margin-top:0;">विस्तृत विवरण</h2>
+        <div id="modalTableContainer"></div>
+    </div>
+</div>
+
+<audio id="notifSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+
+<script>
+    let lastDataCount = 0;
+    let currentPage = 1;
+    const rowsPerPage = 12;
+
+    function playSound() {
+        document.getElementById('notifSound').play().catch(e => console.log("Sound failed", e));
+    }
+
+    function updateTimestamp() {
+        document.getElementById('lastRefreshed').innerText = "अन्तिम अपडेट: " + new Date().toLocaleTimeString();
+    }
+
+    function renderReport() {
+        const history = JSON.parse(localStorage.getItem('mainDataArray')) || [];
+        const query = document.getElementById('masterSearch').value.toLowerCase();
+        const searchDate = document.getElementById('searchDate').value;
+
+        if (history.length > lastDataCount && lastDataCount !== 0) {
+            playSound();
+        }
+        lastDataCount = history.length;
+
+        let filtered = history;
+
+        // Smart Search Logic
+        if (query) {
+            filtered = filtered.filter(item => {
+                const nameMatch = item.name.toLowerCase().includes(query);
+                
+                // Value Index mapping: 0:Saving, 1:Loan, 2:NCBL, 3:Esewa, 4:Sunrise(Extra), 5:Cash, 6:Khata
+                const vals = item.values.map(v => parseFloat(v) || 0);
+                
+                // Check if user is searching for specific field (e.g., "esewa 100")
+                if (query.includes("esewa")) {
+                    const amount = parseFloat(query.replace("esewa", "").trim());
+                    return isNaN(amount) ? vals[3] > 0 : vals[3] === amount;
+                }
+                if (query.includes("ncbl")) {
+                    const amount = parseFloat(query.replace("ncbl", "").trim());
+                    return isNaN(amount) ? vals[2] > 0 : vals[2] === amount;
+                }
+                if (query.includes("cash")) {
+                    const amount = parseFloat(query.replace("cash", "").trim());
+                    return isNaN(amount) ? vals[5] > 0 : vals[5] === amount;
+                }
+                if (query.includes("sunrise") || query.includes("extra")) {
+                    const amount = parseFloat(query.replace(/sunrise|extra/, "").trim());
+                    return isNaN(amount) ? vals[4] > 0 : vals[4] === amount;
+                }
+                if (query.includes("khata")) {
+                    const amount = parseFloat(query.replace("khata", "").trim());
+                    return isNaN(amount) ? vals[6] > 0 : vals[6] === amount;
+                }
+
+                // Default: Match Name or any value that equals the number
+                const numQuery = parseFloat(query);
+                const valueMatch = !isNaN(numQuery) && vals.some(v => v === numQuery);
+
+                return nameMatch || valueMatch;
+            });
+        }
+
+        if (searchDate) filtered = filtered.filter(item => item.date === searchDate);
+
+        const grouped = {};
+        filtered.forEach(item => {
+            if (!grouped[item.date]) grouped[item.date] = [];
+            grouped[item.date].push(item);
+        });
+
+        const sortedDates = Object.keys(grouped).sort((a,b) => new Date(b) - new Date(a));
+        const totalPages = Math.ceil(sortedDates.length / rowsPerPage) || 1;
+        const pageDates = sortedDates.slice((currentPage-1)*rowsPerPage, currentPage*rowsPerPage);
+
+        const listDiv = document.getElementById('statementList');
+        listDiv.innerHTML = "";
+
+        pageDates.forEach(date => {
+            const dayItems = grouped[date];
+            let tSaving = 0, tLoan = 0, tRecvd = 0;
+            
+            dayItems.forEach(item => {
+                const v = item.values.map(val => parseFloat(val) || 0);
+                tSaving += v[0];
+                tLoan += v[1];
+                tRecvd += (v[2] + v[3] + v[4] + v[5] + v[6]);
+            });
+
+            const card = document.createElement('div');
+            card.className = 'date-card';
+            card.onclick = () => openModal(date, dayItems);
+            card.innerHTML = `
+                <h3>📅 मिति: ${date}</h3>
+                <div class="summary-box">
+                    <div class="summary-row"><span>बचत (Saving):</span> <b>रु ${tSaving.toLocaleString()}</b></div>
+                    <div class="summary-row"><span>ऋण (Loan):</span> <b>रु ${tLoan.toLocaleString()}</b></div>
+                    <div class="summary-row" style="color:var(--success); border:none; padding-top:4px;">
+                        <span>जम्मा असुली (${dayItems.length} इन्ट्री):</span> <b>रु ${tRecvd.toLocaleString()}</b>
+                    </div>
+                </div>
+            `;
+            listDiv.appendChild(card);
+        });
+
+        renderPagination(totalPages);
+        updateTimestamp();
+    }
+
+    function openModal(date, items) {
+        const modal = document.getElementById('detailModal');
+        const container = document.getElementById('modalTableContainer');
+        const query = document.getElementById('masterSearch').value.toLowerCase();
+        document.getElementById('modalTitle').innerText = "📅 मिति " + date + " को विस्तृत रिपोर्ट";
+        
+        let gSaving = 0, gLoan = 0, gTotal = 0, gNcbl = 0, gEsewa = 0, gExtra = 0, gCash = 0, gKhata = 0, gRecvd = 0;
+
+        let html = `<table><thead><tr>
+            <th style="text-align:left;">कलेक्टरको नाम</th>
+            <th>बचत </th><th>ऋण </th><th>कुल जम्मा</th>
+            <th>NCBL</th><th>ESEWA</th><th style="background:#fff7ed">SUNRISE</th>
+            <th>CASH</th><th>KHATA</th><th>प्राप्त रकम</th><th>फरक (𝕯𝖎𝖋𝖋𝖊𝖗𝖊𝖓𝖈𝖊)</th>
+        </tr></thead><tbody>`;
+
+        items.forEach(item => {
+            const v = item.values.map(val => parseFloat(val) || 0);
+            const total = v[0] + v[1];
+            const recvd = v[2] + v[3] + v[4] + v[5] + v[6];
+            const diff = total - recvd;
+
+            gSaving += v[0]; gLoan += v[1]; gTotal += total;
+            gNcbl += v[2]; gEsewa += v[3]; gExtra += v[4];
+            gCash += v[5]; gKhata += v[6]; gRecvd += recvd;
+
+            // Highlighter logic for modal table
+            const highlight = (idx) => (query && (query.includes(['saving','loan','ncbl','esewa','sunrise','cash','khata'][idx]) || v[idx] == parseFloat(query))) ? 'highlight-search' : '';
+
+            html += `<tr>
+                <td class="name-td">${item.name}</td>
+                <td class="${highlight(0)}">${v[0].toLocaleString()}</td>
+                <td class="${highlight(1)}">${v[1].toLocaleString()}</td>
+                <td style="background:#f8fafc; font-weight:800;">${total.toLocaleString()}</td>
+                <td class="${highlight(2)}">${v[2].toLocaleString()}</td>
+                <td class="${highlight(3)}">${v[3].toLocaleString()}</td>
+                <td class="${highlight(4)}" style="background:#fff7ed;">${v[4].toLocaleString()}</td>
+                <td class="${highlight(5)}">${v[5].toLocaleString()}</td>
+                <td class="${highlight(6)}">${v[6].toLocaleString()}</td>
+                <td style="color:var(--success); font-weight:800;">${recvd.toLocaleString()}</td>
+                <td style="color:${diff !== 0 ? '#ef4444' : '#64748b'}; font-weight:bold;">${diff.toLocaleString()}</td>
+            </tr>`;
+        });
+
+        html += `<tr class="grand-total-row">
+            <td style="text-align:left;">GRAND TOTAL</td>
+            <td>${gSaving.toLocaleString()}</td>
+            <td>${gLoan.toLocaleString()}</td>
+            <td>${gTotal.toLocaleString()}</td>
+            <td>${gNcbl.toLocaleString()}</td>
+            <td>${gEsewa.toLocaleString()}</td>
+            <td>${gExtra.toLocaleString()}</td>
+            <td>${gCash.toLocaleString()}</td>
+            <td>${gKhata.toLocaleString()}</td>
+            <td>${gRecvd.toLocaleString()}</td>
+            <td>-</td>
+        </tr></tbody></table>`;
+        
+        container.innerHTML = html;
+        modal.style.display = "block";
+    }
+
+    function closeModal() { document.getElementById('detailModal').style.display = "none"; }
+
+    function renderPagination(totalPages) {
+        const pgDiv = document.getElementById('pagination');
+        pgDiv.innerHTML = "";
+        if (totalPages <= 1) return;
+
+        for (let i = 1; i <= totalPages; i++) {
+            const btn = document.createElement('button');
+            btn.className = `pg-btn ${i === currentPage ? 'active' : ''}`;
+            btn.innerText = i;
+            btn.onclick = () => { currentPage = i; renderReport(); };
+            pgDiv.appendChild(btn);
+        }
+    }
+
+    setInterval(renderReport, 30000);
+    window.onload = renderReport;
+</script>
+</body>
+</html>
