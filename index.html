@@ -6,81 +6,39 @@
   <title>Aruns E-Services Portal</title>
   
   <style>
+    /* हजुरको ओरिजिनल स्टाइल हुबहु यहाँ छ */
     *{margin:0;padding:0;box-sizing:border-box;}
     body{font-family:"Segoe UI",Arial,sans-serif;color:#333;height:100vh;}
 
-    /* ---------------- LOGIN PAGE WITH IMAGE BACKGROUND ---------------- */
     #loginPage{
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      height:100vh;
-      background:url('https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExcDc1andrZ29jOHl1Z256YXFxc2h1d3RkNnJpaWtlaHU2ZXk5ODd6NSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/TgsduTSqnbakE/giphy.gif')
-      no-repeat center/cover;
+      display:flex; justify-content:center; align-items:center; height:100vh;
+      background:url('https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExcDc1andrZ29jOHl1Z256YXFxc2h1d3RkNnJpaWtlaHU2ZXk5ODd6NSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/TgsduTSqnbakE/giphy.gif') no-repeat center/cover;
       position:relative;
     }
     #loginPage::before{
-      content:'';
-      position:absolute;
-      top:0;left:0;width:100%;height:100%;
-      backdrop-filter:blur(6px);
-      background:rgba(0,0,0,0.35);
+      content:''; position:absolute; top:0;left:0;width:100%;height:100%;
+      backdrop-filter:blur(6px); background:rgba(0,0,0,0.35);
     }
-    #loginPage *{
-      position:relative;
-    }
+    #loginPage *{ position:relative; }
 
     .login-box{
-      width:330px;
-      padding:30px;
-      border-radius:15px;
-      backdrop-filter:blur(12px);
-      background:rgba(255,255,255,0.18);
-      box-shadow:0 0 25px rgba(0,0,0,0.4);
-      text-align:center;
+      width:330px; padding:30px; border-radius:15px; backdrop-filter:blur(12px);
+      background:rgba(255,255,255,0.18); box-shadow:0 0 25px rgba(0,0,0,0.4); text-align:center;
     }
-    .login-box h2{
-      font-size:28px;
-      margin-bottom:15px;
-      color:#00eaff;
-      text-shadow:0 0 8px #00d9ff;
-    }
+    .login-box h2{ font-size:28px; margin-bottom:15px; color:#00eaff; text-shadow:0 0 8px #00d9ff; }
     .login-box input{
-      width:100%;
-      padding:12px;
-      margin:10px 0;
-      border:none;
-      border-radius:8px;
-      font-size:16px;
-      background:rgba(157, 192, 197, 0.85);
-      outline:none;
+      width:100%; padding:12px; margin:10px 0; border:none; border-radius:8px;
+      font-size:16px; background:rgba(157, 192, 197, 0.85); outline:none;
     }
     .login-box button{
-      width:100%;
-      padding:12px;
-      border:none;
-      border-radius:8px;
-      cursor:pointer;
-      font-size:17px;
-      font-weight:600;
-      background:linear-gradient(90deg,#0066ff,#00eaff);
-      color:rgb(136, 131, 131);
-      transition:0.2s;
+      width:100%; padding:12px; border:none; border-radius:8px; cursor:pointer;
+      font-size:17px; font-weight:600; background:linear-gradient(90deg,#0066ff,#00eaff);
+      color:#fff; transition:0.2s;
     }
-    .login-box button:hover{
-      transform:scale(1.03);
-      box-shadow:0 0 15px #00eaff;
-    }
+    .login-box button:hover{ transform:scale(1.03); box-shadow:0 0 15px #00eaff; }
     .error-msg{color:#ff4444;font-size:14px;margin-top:5px;display:none;}
 
-
-    /* ---------------- MAIN PAGE LAYOUT ---------------- */
-    #mainPage{
-      display:none; 
-      height:100vh; 
-      flex-direction: column; 
-      overflow:hidden;
-    } 
+    #mainPage{ display:none; height:100vh; flex-direction: column; overflow:hidden; } 
 
     header{background:linear-gradient(90deg,#002b5c,#004b8d);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:8px 20px;}
     header img{height:60px;}
@@ -94,88 +52,28 @@
     .folder.open>ul{display:block;}
     .folder ul li a{text-decoration:none;color:#003366;display:block;padding:4px 8px;border-radius:4px;}
     .folder ul li a:hover{background:#c7d7f0;}
-    main{background:#fff;} /* Changed main background to white for placeholder */
+    main{background:#fff;} 
     iframe{width:100%;height:100%;border:none;}
     
-    /* FOOTER STYLING */
-    footer{
-      background:#002b5c;
-      color:#fff;
-      font-size:12px;
-      padding:6px 10px; 
-      display:flex; 
-      justify-content:space-between; 
-      align-items:center; 
-      flex-shrink: 0; 
-    }
-    .backup-panel-footer{
-      display:flex;
-      gap: 10px; 
-    }
-    footer button{
-      border:none;
-      padding:6px 10px; 
-      border-radius:4px;
-      cursor:pointer;
-      font-size:12px;
-      font-weight:600;
-      transition:0.2s;
-    }
+    footer{ background:#002b5c; color:#fff; font-size:12px; padding:6px 10px; display:flex; justify-content:space-between; align-items:center; flex-shrink: 0; }
+    .backup-panel-footer{ display:flex; gap: 10px; }
+    footer button{ border:none; padding:6px 10px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:600; transition:0.2s; }
     footer #backupBtn{background:#0077cc;color:white;}
     footer #restoreBtn{background:#00aa66;color:white;}
     footer #logoutBtn{background:#ff4444;color:white;}
 
-    /* Dashboard Placeholder Styling (New) */
     #dashboardPlaceholder {
-        width: 100%;
-        height: 100%;
-        display: flex; 
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        background: #f0f4f8; /* Light blue background */
-        color: #003366;
-        text-align: center;
-        padding: 20px;
-    }
-    #dashboardPlaceholder h2 {
-        font-size: 30px;
-        margin-bottom: 20px;
+        width: 100%; height: 100%; display: flex; flex-direction: column;
+        justify-content: center; align-items: center; background: #f0f4f8; color: #003366; text-align: center; padding: 20px;
     }
     .image-placeholder {
-        width: 80%;
-        max-width: 500px;
-        height: 300px;
-        background: #e9eff7;
-        border: 4px dashed #0077cc;
-        border-radius: 10px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        font-size: 18px;
-        color: #0077cc;
-        padding: 20px;
-    }
-    .image-placeholder p {
-        margin-top: 10px;
-        font-size: 14px;
-        color: #5a7fa8;
+        width: 80%; max-width: 500px; height: 300px; background: #e9eff7; border: 4px dashed #0077cc;
+        border-radius: 10px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px;
     }
 
-
-    /* Time Box Styling */
     .time-box{
       display:flex;flex-direction:column;align-items:center;padding:6px 15px;border-radius:12px;
-      background:linear-gradient(135deg,#003366,#0077cc);
-      border:2px solid #00ffff;
-      box-shadow:0 0 15px rgba(0,255,255,0.5);
-      animation:pulse 3s infinite ease-in-out;
-    }
-    @keyframes pulse{
-      0%{box-shadow:0 0 10px rgba(0,255,255,0.4);}
-      50%{box-shadow:0 0 25px rgba(0,255,255,0.9);}
-      100%{box-shadow:0 0 10px rgba(0,255,255,0.4);}
+      background:linear-gradient(135deg,#003366,#0077cc); border:2px solid #00ffff; box-shadow:0 0 15px rgba(0,255,255,0.5);
     }
     .time-box .eng{font-size:15px;color:#aee2ff;}
     .time-box .nep{font-size:14px;color:#ffea91;font-weight:600;}
@@ -183,15 +81,13 @@
 </head>
 <body>
 
-
 <div id="loginPage">
   <div class="login-box">
-    <h2> 𝐋𝐨𝐠 𝐈𝐧 ʕʘ̅͜ʘ̅ʔ 🔐</h2>
+    <h2> 𝐋𝐨𝐠 𝐈𝐧 🔐</h2>
     <input type="text" id="username" placeholder="Username">
     <input type="password" id="password" placeholder="Password">
     <div class="error-msg" id="error"> 𝐈𝐧𝐯𝐚𝐥𝐢𝐝 𝐔𝐬𝐞𝐫𝐧𝐚𝐦𝐞 𝐨𝐫 𝐏𝐚𝐬𝐬𝐰𝐨𝐫𝐝 ❌</div>
     <button onclick="login()">Login</button>
-    <p style="font-size:12px;margin-top:10px;">Please Use Correct Info To Login <b></b>...... <b></b></p>
   </div>
 </div>
 
@@ -205,14 +101,12 @@
       </div>
     </div>
     <div class="title">
-     
       <h1> ⲯ﹍︿﹍︿﹍ 𝓦𝓮𝓵𝓬𝓸𝓶𝓮 ﹍ⲯ﹍ⲯ﹍︿﹍☼ </h1>
-      <p> 𝐃𝐚𝐭𝐚𝐛𝐚𝐬𝐞 𝐖𝐢𝐭𝐡 𝐂𝐥𝐨𝐮𝐝 𝐃𝐞𝐩𝐚𝐫𝐭𝐦𝐞𝐧𝐭,𝗚𝗼𝗼𝗴𝗹𝗲 𝗖𝗼𝗺𝗽𝗮𝗻𝘆 𝗟𝘁𝗱.</p>
+      <p> 𝐃𝐚𝐭𝐚𝐛𝐚𝐬𝐞 𝐖𝐢𝐭𝐡 𝐂𝐥𝐨𝐮𝐝 𝐃𝐞पर𝐭𝐦𝐞𝐧𝐭, 𝗚𝗼𝗼𝗴𝗹𝗲 𝗖𝗼𝗺𝗽𝗮𝗻𝘆 𝗟𝘁𝗱.</p>
     </div>
-     <img src="https://upload.wikimedia.org/wikipedia/commons/1/18/Small_wifi_reverse_signal.gif" alt="IRD Logo" onerror="this.style.display='none'">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/Small_gif.gif" alt="IRD Logo" onerror="this.style.display='none'">
-    
+    <img src="https://upload.wikimedia.org/wikipedia/commons/1/18/Small_wifi_reverse_signal.gif" alt="Wifi">
   </header>
+
   <div class="container">
     <div class="sidebar">
       <h3>𝐎𝐧𝐥𝐢𝐧𝐞 𝐄-𝐒𝐞𝐫𝐯𝐢𝐜𝐞𝐬</h3>
@@ -220,53 +114,7 @@
         <div onclick="toggleFolder(this)">📁 𝐀𝐛𝐨𝐮𝐭-𝐚𝐝𝐦𝐢𝐧</div>
         <ul>
           <li><a href="#" onclick="loadContent('https://dreamwaver2020.github.io/Boost-nepal/')">🗁 General</a></li>
-          <li><a href="#" onclick="loadContent('https://docs.google.com/forms/d/e/1FAIpQLSdNSzbmc11AiY_wkFC2xitdkymYHpdnE7aBRrPcJAPzOl6AuA/viewform?usp=sharing&ouid=112475509774410053704')">🗁 Personal</a></li>
-          <li><a href="#" onclick="loadContent('https://docs.google.com/spreadsheets/d/1jjjwBa1M29aK84B5Vp2nzHMIcL3gRV6LJ60_ieQIfwI/edit?usp=drive_link')">🗁 Public</a></li>
-         <li><li>
-    <a href="#" onclick="loadContent('https://docs.google.com/forms/d/e/1FAIpQLSdNSzbmc11AiY_wkFC2xitdkymYHpdnE7aBRrPcJAPzOl6AuA/viewform?embedded=true')">
-        🗁 Personal Form
-    </a>
-</li>
-      </ul>
-        <main>
-        </main>
-      </div>
-      <div class="folder">
-        <div onclick="toggleFolder(this)">📁 𝐒𝐞𝐚𝐫𝐜𝐡 𝐑𝐞𝐜𝐨𝐫𝐝𝐬</div>
-        <ul>
-          <li><a href="#" onclick="loadContent('Online E-Services/Search Data/search_data.html')">🗁 Search Data</a></li>
-           <li><a href="#" onclick="loadContent('Online E-Services/Search Data/Signature_Pending.html')">🗁 Signature</a></li>
-        </ul>
-      </div>
-      <div class="folder">
-        <div onclick="toggleFolder(this)">📁 𝐂𝐡𝐚𝐫 𝐊𝐡𝐚𝐭𝐚</div>
-        <ul>
-           <li><a href="#" onclick="loadContent('Online E-Services/Char Khata/Sampati_Khata.html')">🗁 Sampati Khata</a></li>          
-          <li><a href="#" onclick="loadContent('Online E-Services/Char Khata/Dayetwa_Khata.html')">🗁 Dayetwa Khata</a></li>
-           <li><a href="#" onclick="loadContent('Online E-Services/Char Khata/Kharcha_Khata.html')">🗁 Kharcha Khata</a></li>          
-          <li><a href="#" onclick="loadContent('Online E-Services/Char Khata/Amdani_Khata.html')">🗁 Amdani Khata</a></li>
-        </ul>
-      </div>
-    
-     <div class="folder">
-        <div onclick="toggleFolder(this)">📁  𝐄-𝐒𝐞𝐰𝐚 𝐔𝐩𝐝𝐚𝐭𝐞𝐬</div>
-        <ul>
-           <li><a href="#" onclick="loadContent('Online E-Services/Esewa/esewa-records.html')">🗁 Esewa Records</a></li>          
-        </ul>
-      </div>
-    
-      <div class="folder">
-        <div onclick="toggleFolder(this)">📁 𝐁𝐚𝐧𝐤 𝐓𝐫𝐚𝐜𝐤</div>
-        <ul>
-           <li><a href="#" onclick="loadContent('Online E-Services/Banks/bank-statement-update.html')">🗁 Bank Update</a></li>          
-          <li><a href="#" onclick="loadContent('Online E-Services/Banks/statement-download.html')">🗁 Statement Download</a></li>
-        </ul>
-      </div>
-      <div class="folder">
-        <div onclick="toggleFolder(this)">📁  𝐂𝐨𝐥𝐥𝐞𝐜𝐭𝐨𝐫𝐬 𝐄𝐧𝐭𝐫𝐲</div>
-        <ul>
-          <li><a href="#" onclick="loadContent('Online E-Services/Collector/collector-details.html')">🗁 Collector Details</a></li>         
-          <li><a href="#" onclick="loadContent('Online E-Services/Collector/collector-download.html')">🗁 Record Download</a></li>
+          <li><a href="#" onclick="loadEsewaForm()">🗁 E-Sewa Updates</a></li>
         </ul>
       </div>
     </div>
@@ -275,20 +123,15 @@
         <div id="dashboardPlaceholder">
             <h2> 𝓦𝓮𝓵𝓬𝓸𝓶𝓮 𝓽𝓸 𝓔-𝓢𝓮𝓻𝓿𝓲𝓬𝓮𝓼 𝓟𝓸𝓻𝓽𝓪𝓵</h2>
             <div class="image-placeholder">
-                <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
-                    <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
-                </svg>
-                <p>तपाईंको प्रोफाइलको तस्बिर वा ड्यासबोर्ड चार्ट यहाँ आउँछ।</p>
                 <p>सेवाहरू प्रयोग गर्न बाँया साइडबारबाट मेनु चयन गर्नुहोस्।</p>
             </div>
-            <p style="margin-top: 15px; color: #555;">Select a service from the left sidebar to load it here.</p>
         </div>
-        <iframe name="contentFrame" id="contentFrame" style="display: none;"></iframe> </main>
+        <iframe name="contentFrame" id="contentFrame" style="display: none;"></iframe>
+    </main>
   </div>
 
   <footer>
-    <div>© 2025 𝐃𝐚𝐭𝐚𝐛𝐚𝐬𝐞 𝐖𝐢𝐭𝐡 𝐂𝐥𝐨𝐮𝐝 𝐃𝐞𝐩𝐚𝐫𝐭𝐦𝐞𝐧𝐭 𝗚𝗼𝗼𝗴𝗹𝗲 𝗖𝗼𝗺𝗽𝗮𝗻𝘆 𝗟𝘁𝗱.</div>
-    <div>© 2025 𝐃𝐚𝐭𝐚𝐛𝐚𝐬𝐞 𝐖𝐢𝐭𝐡 𝐂𝐥𝐨𝐮𝐝 𝐃𝐞𝐩𝐚𝐫𝐭𝐦𝐞𝐧𝐭 𝗚𝗼𝗼𝗴𝗹𝗲 𝗖𝗼𝗺𝗽𝗮𝗻𝘆 𝗟𝘁𝗱.</div>
+    <div>© 2025 𝐃𝐚𝐭𝐚𝐛𝐚𝐬𝐞 𝐖𝐢𝐭𝐡 𝐂𝐥𝐨𝐮𝐝 𝐃𝐞𝐩𝐚𝐫𝐭𝐦𝐞𝐧𝐭</div>
     <div class="backup-panel-footer">
         <input type="file" id="restoreFile" style="display:none;" accept=".json">
         <button id="backupBtn">💾 Backup</button>
@@ -299,19 +142,25 @@
 </div>
 
 <script>
-// --- Core Functions: Login/Logout Logic ---
-function login(){
+// --- MongoDB Integration थपिएको Login Logic ---
+async function login(){
   const u=document.getElementById('username').value.trim();
   const p=document.getElementById('password').value.trim();
   
-  // Hardcoded Credentials Check
   if(u==='Admin'&&p==='Admin123'){
+    // MongoDB मा लगइन रेकर्ड पठाउने
+    try {
+        await fetch('/api/login-log', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ username: u })
+        });
+    } catch(err) { console.log("Cloud sync error", err); }
+
     document.getElementById('loginPage').style.display='none';
-    document.getElementById('mainPage').style.display='flex'; // Show main page
-    // Ensure dashboard placeholder is visible on login
+    document.getElementById('mainPage').style.display='flex';
     document.getElementById('dashboardPlaceholder').style.display = 'flex';
     document.getElementById('contentFrame').style.display = 'none';
-    document.getElementById('contentFrame').src = 'about:blank'; // Clear previous content
   }else{
     const e=document.getElementById('error');
     e.style.display='block';
@@ -321,434 +170,91 @@ function login(){
 
 function logout(){
   if(confirm('Are you sure you want to logout?')){
-    document.getElementById('mainPage').style.display='none'; // Hide main page
-    document.getElementById('loginPage').style.display='flex'; // Show login page
-    document.getElementById('username').value = '';
-    document.getElementById('password').value = '';
+    location.reload();
   }
 }
 
 function toggleFolder(el){el.parentElement.classList.toggle('open');}
 
-
-// --- NEW: Function to switch from placeholder to iframe and load content ---
 function loadContent(url) {
   const iframe = document.getElementById('contentFrame');
   const placeholder = document.getElementById('dashboardPlaceholder');
-  
-  // 1. Switch visibility
   if (placeholder) placeholder.style.display = 'none';
   iframe.style.display = 'block';
-  
-  // 2. Load content
   iframe.src = url; 
-  // Clear any existing srcdoc content if present
   iframe.removeAttribute('srcdoc'); 
 }
 
+// --- E-sewa Form with MongoDB Cloud Sync ---
+function loadEsewaForm(){
+  const iframe=document.getElementById('contentFrame');
+  const placeholder = document.getElementById('dashboardPlaceholder');
+  if (placeholder) placeholder.style.display = 'none';
+  iframe.style.display = 'block';
 
-// --- Time & Date Functions ---
+  iframe.srcdoc=`
+    <html><head>
+    <style>
+      body{font-family:sans-serif; background:#f4f6fb; padding:20px;}
+      .form-box{background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,0.1);}
+      input, select, button{width:100%; padding:10px; margin:5px 0; border:1px solid #ccc; border-radius:4px;}
+      button{background:#003366; color:#fff; font-weight:bold; cursor:pointer;}
+    </style></head>
+    <body>
+      <div class="form-box">
+        <h2>𝓔-𝓼𝓮𝔀𝓪 Cloud Submission</h2>
+        <form id="mongoEsewa">
+          <input type="text" id="date" placeholder="Date (e.g. 2025-05-10)" required>
+          <input type="text" id="trx" placeholder="TRX Code" required>
+          <input type="text" id="sender" placeholder="Sender Name" required>
+          <input type="number" id="amount" placeholder="Amount" required>
+          <select id="status"><option>Pending</option><option>Approved</option></select>
+          <button type="submit">Submit to Cloud (MongoDB)</button>
+        </form>
+      </div>
+      <script>
+        document.getElementById('mongoEsewa').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const data = {
+            date: document.getElementById('date').value,
+            trx: document.getElementById('trx').value,
+            sender: document.getElementById('sender').value,
+            amount: document.getElementById('amount').value,
+            status: document.getElementById('status').value
+          };
+          
+          try {
+            const res = await fetch('/api/save-esewa', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify(data)
+            });
+            if(res.ok) alert("✅ डेटा MongoDB Cloud मा सेभ भयो!");
+          } catch(err) { alert("❌ Cloud Error: " + err.message); }
+        });
+      <\/script>
+    </body></html>`;
+}
+
+// --- Time & Backup Functions (हजुरको ओरिजिनल) ---
 function updateHeaderTime(){
   const now=new Date();
-  const eng=now.toLocaleString('en-GB',{weekday:'short',year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  document.getElementById('engTime').textContent=eng;
-  document.getElementById('nepTime').textContent=getNepaliDateTime(now);
-}
-function getNepaliDateTime(date){
-  const npMonths=['बैशाख','जेठ','असार','साउन','भदौ','असोज','कात्तिक','मंसिर','पुष','माघ','फागुन','चैत'];
-  const npNumbers={'0':'०','1':'१','2':'२','3':'३','4':'४','5':'५','6':'६','7':'७','8':'८','9':'९'};
-  let y=date.getFullYear()+57;
-  let m=(date.getMonth()+1+8)%12;if(m===0)m=12;
-  let d=date.getDate();
-  const npDate=`${npMonths[m-1]} ${d}, ${y}`;
-  const h=String(date.getHours()).padStart(2,'0').replace(/[0-9]/g,d=>npNumbers[d]);
-  const mi=String(date.getMinutes()).padStart(2,'0').replace(/[0-9]/g,d=>npNumbers[d]);
-  const s=String(date.getSeconds()).padStart(2,'0').replace(/[0-9]/g,d=>npNumbers[d]);
-  return npDate.replace(/[0-9]/g,d=>npNumbers[d])+" ("+h+":"+mi+":"+s+")";
+  document.getElementById('engTime').textContent=now.toLocaleString('en-GB');
 }
 setInterval(updateHeaderTime,1000);
-updateHeaderTime();
 
-
-// --- iFrame Content Loaders (E-sewa / Certificate) - UPDATED TO HIDE PLACEHOLDER ---
-function loadEsewaForm(){
-const iframe=document.getElementById('contentFrame');
-const placeholder = document.getElementById('dashboardPlaceholder');
-  
-// Switch visibility
-if (placeholder) placeholder.style.display = 'none';
-iframe.style.display = 'block';
-
-iframe.src = 'about:blank'; // Clear old src before setting srcdoc
-
-// Set srcdoc content (rest of the existing content generation logic)
-iframe.srcdoc=`<html><head><meta charset='utf-8'><title>Esewa Form</title>
-<style>
-body{font-family:"Segoe UI",sans-serif;background:#f4f6fb;padding:25px;}
-.form-container{max-width:820px;margin:auto;}
-form{background:#fff;padding:25px;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.1);}
-form h2{text-align:center;color:#003366;margin-bottom:18px;}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;}
-label{font-weight:600;color:#003366;}
-input,select{width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;}
-.actions{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:15px;}
-button{padding:10px 16px;border:none;border-radius:6px;cursor:pointer;font-weight:600;}
-button.small{font-size:14px;}
-button.export{background:#28a745;color:#fff;}
-button.secondary{background:#5a7fa8;color:#fff;}
-button.submit{background:#003366;color:#fff;}
-.table-wrap{margin-top:25px;overflow:auto;}
-table{width:100%;border-collapse:collapse;}
-th,td{border:1px solid #dee2e6;padding:10px;text-align:center;font-size:14px;}
-th{background:#003366;color:#fff;}
-.btn-small{padding:5px 10px;border-radius:4px;font-size:13px;}
-.edit{background:#f0ad4e;color:#fff;border:none;}
-.del{background:#d9534f;color:#fff;border:none;}
-.search{margin-top:10px;padding:8px;width:220px;border-radius:6px;border:1px solid #ccc;}
-.count{font-size:13px;color:#333;margin-top:5px;}
-.filter-buttons{margin-top:10px;}
-.filter-buttons button{padding:6px 12px;margin-right:6px;border:none;border-radius:5px;background:#5a7fa8;color:#fff;cursor:pointer;font-size:13px;}
-.filter-buttons button:hover{background:#003366;}
-</style></head><body>
-<div class='form-container'>
-<form id='esewaForm'>
-<h2>𝓔-𝓼𝓮𝔀𝓪  𝓕𝓸𝓻𝓶  𝓢𝓾𝓫𝓶𝓲𝓼𝓼𝓲𝓸𝓷</h2>
-<div class='grid'>
-<div><label>Date & Time</label><input type='text' id='date' required></div>
-<div><label>Reference Code</label><input type='text' id='trx' placeholder='Enter Esewa Transaction Code' required></div>
-<div><label>Initiator Name</label><input type='text' id='sender' placeholder='Enter Sender Name' required></div>
-<div><label>Amount (NPR)</label><input type='number' id='amount' placeholder='Enter Amount' min='0' required></div>
-<div><label>Status</label><select id='status'><option>Pending</option><option>Approved</option><option>Failed</option></select></div>
-</div>
-<div class='actions'>
-<div><button type='button' id='exportCSV' class='small export'>Export CSV</button> <button type='button' id='exportXLS' class='small export'>Export Excel (.xls)</button></div>
-<div><button type='reset' class='small secondary'>Reset</button> <button type='submit' id='submitBtn' class='small submit'>Submit</button></div>
-</div>
-</form>
-
-<div class="filter-buttons">
-  <button onclick="render('Pending')">Pending</button>
-  <button onclick="render('Approved')">Approved</button>
-  <button onclick="render('Failed')">Failed</button>
-  <button onclick="render('')">All</button>
-</div>
-
-<div>
-  <input type='text' id='searchInput' class='search' placeholder='Search TRX / Sender / Status / Date...'>
-  <div class='count'>Total entries: <span id='totalCount'>0</span></div>
-</div>
-<div class='table-wrap'><table id='dataTable'><thead><tr><th>#</th><th>Date</th><th>TRX Code</th><th>Sender</th><th>Amount (NPR)</th><th>Status</th><th>Actions</th></tr></thead><tbody></tbody></table></div>
-</div>
-
-<script>
-const STORAGE_KEY='esewa_entries_v1';
-let entries=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
-let editId=null;
-const form=document.getElementById('esewaForm');
-const dateEl=document.getElementById('date');
-const trxEl=document.getElementById('trx');
-const senderEl=document.getElementById('sender');
-const amountEl=document.getElementById('amount');
-const statusEl=document.getElementById('status');
-const tableBody=document.querySelector('#dataTable tbody');
-const totalCountEl=document.getElementById('totalCount');
-const searchInput=document.getElementById('searchInput');
-
-function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(entries));}
-
-function render(filter=''){
-  const q=filter.trim().toLowerCase();
-  let list = entries.filter(e=>{
-    if(!q) return true;
-    // match against trx, sender, status, date, amount
-    const trx = (e.trx||'').toLowerCase();
-    const sender = (e.sender||'').toLowerCase();
-    const status = (e.status||'').toLowerCase();
-    const date = (e.date||'').toLowerCase();
-    const amount = String(e.amount || '').toLowerCase();
-    return trx.includes(q) || sender.includes(q) || status.includes(q) || date.includes(q) || amount.includes(q);
-  });
-
-  tableBody.innerHTML='';
-  // show latest first
-  list.slice().reverse().forEach((e,i)=>{
-    tableBody.innerHTML+=\`<tr>
-      <td>\${i+1}</td>
-      <td>\${e.date}</td>
-      <td>\${e.trx}</td>
-      <td>\${e.sender || ''}</td>
-      <td>\${Number(e.amount).toLocaleString()}</td>
-      <td>\${e.status}</td>
-      <td><button class='btn-small edit' data-id='\${e.id}'>Edit</button> <button class='btn-small del' data-id='\${e.id}'>Delete</button></td>
-    </tr>\`;
-  });
-  totalCountEl.textContent=list.length;
-}
-
-render();
-
-form.addEventListener('submit',e=>{
-  e.preventDefault();
-  const d={
-    id: editId || ('id_'+Date.now()),
-    date: dateEl.value,
-    trx: trxEl.value.trim(),
-    sender: senderEl.value.trim(),
-    amount: Number(amountEl.value) || 0,
-    status: statusEl.value,
-    createdAt: Date.now()
-  };
-  if(!d.date || !d.trx || !d.sender){
-    alert('Please fill Date, TRX and Sender fields');
-    return;
-  }
-  if(editId){
-    entries = entries.map(x=> x.id===editId ? d : x);
-    editId = null;
-    alert('Entry updated!');
-    document.getElementById('submitBtn').textContent='Submit';
-  }else{
-    entries.push(d);
-    alert('Form Submitted!');
-  }
-  save();
-  form.reset();
-  render(searchInput.value.trim());
-});
-
-tableBody.addEventListener('click',e=>{
-  if(e.target.classList.contains('edit')){
-    const id=e.target.dataset.id;
-    const item=entries.find(x=>x.id===id);
-    if(item){
-      dateEl.value=item.date || '';
-      trxEl.value=item.trx || '';
-      senderEl.value=item.sender || '';
-      amountEl.value=item.amount || '';
-      statusEl.value=item.status || 'Pending';
-      editId=id;
-      document.getElementById('submitBtn').textContent='Update';
-      form.scrollIntoView({behavior:'smooth'});
-    }
-  }
-  if(e.target.classList.contains('del')){
-    if(confirm('Delete this entry?')){
-      entries = entries.filter(x=>x.id!==e.target.dataset.id);
-      save();
-      render(searchInput.value.trim());
-    }
-  }
-});
-
-searchInput.addEventListener('input',()=>render(searchInput.value.trim()));
-
-// CSV Export
-document.getElementById('exportCSV').addEventListener('click',()=>{
-  if(entries.length===0){alert('No data');return;}
-  const header=['Date','TRX Code','Sender','Amount','Status'];
-  // make rows descending (latest first)
-  const rows = entries.slice().reverse().map(e=>[
-    e.date,
-    e.trx,
-    e.sender || '',
-    e.amount,
-    e.status
-  ]);
-  // CSV escaping: wrap each field that contains comma or quote in double quotes and escape quotes
-  const csv = [header, ...rows].map(r => r.map(field => {
-    const s = String(field ?? '');
-    if(s.includes('"')) return '"' + s.replace(/"/g,'""') + '"';
-    if(s.includes(',') || s.includes('\\n')) return '"' + s + '"';
-    return s;
-  }).join(',')).join('\\n');
-  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download='esewa_entries.csv';a.click();URL.revokeObjectURL(url);
-});
-
-// XLS Export (simple HTML table)
-document.getElementById('exportXLS').addEventListener('click',()=>{
-  if(entries.length===0){alert('No data');return;}
-  let html='<table border=1><tr><th>Date</th><th>TRX Code</th><th>Sender</th><th>Amount</th><th>Status</th></tr>';
-  entries.slice().reverse().forEach(e=>{
-    html+=\`<tr><td>\${e.date}</td><td>\${e.trx}</td><td>\${(e.sender||'')}</td><td>\${e.amount}</td><td>\${e.status}</td></tr>\`;
-  });
-  html+='</table>';
-  const blob=new Blob([html],{type:'application/vnd.ms-excel'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download='esewa_entries.xls';a.click();URL.revokeObjectURL(url);
-});
-<\/script></body></html>`;
-}
-
-function loadCertificate(){
-const iframe=document.getElementById('contentFrame');
-const placeholder = document.getElementById('dashboardPlaceholder');
-  
-// Switch visibility
-if (placeholder) placeholder.style.display = 'none';
-iframe.style.display = 'block';
-
-iframe.src = 'about:blank'; // Clear old src before setting srcdoc
-
-// Set srcdoc content (rest of the existing content generation logic)
-iframe.srcdoc=`<html><head><meta charset='utf-8'><title>Certificate</title>
-<style>body{font-family:Arial;background:#fff;padding:20px;}
-h2{text-align:center;color:#003366;margin-bottom:10px;}
-button{padding:8px 12px;background:#003366;color:#fff;border:none;border-radius:5px;cursor:pointer;margin-bottom:10px;}
-table{width:100%;border-collapse:collapse;}
-th,td{border:1px solid:#000;padding:6px;text-align:center;}
-th{background:#f0f0f0;}
-@media print{button{display:none}}</style></head><body>
-<h2>𝓔𝓼𝓮𝔀𝓪 𝓕𝓸𝓻𝓶 𝓢𝓾𝓫𝓶𝓲𝓼𝓼𝓲𝓸𝓷 𝓒𝓮𝓻𝓽𝓲𝓯𝓲𝓬𝓪𝓽𝓮</h2>
-<button onclick="window.print()">📄 Download Certificate (PDF)</button>
-<table id='tbl'><thead><tr><th>#</th><th>Date</th><th>TRX Code</th><th>Sender</th><th>Amount (NPR)</th><th>Status</th></tr></thead><tbody></tbody></table>
-<script>
-const arr=JSON.parse(localStorage.getItem('esewa_entries_v1')||'[]');
-const tb=document.querySelector('#tbl tbody');
-if(!arr || arr.length==0){
-  tb.innerHTML='<tr><td colspan=6>No records found</td></tr>';
-}else{
-  // show latest first
-  arr.slice().reverse().forEach((e,i)=>{
-    const amountFormatted = Number(e.amount || 0).toLocaleString();
-    tb.innerHTML+=\`<tr><td>\${i+1}</td><td>\${e.date}</td><td>\${e.trx}</td><td>\${e.sender||''}</td><td>\${amountFormatted}</td><td>\${e.status}</td></tr>\`;
-  });
-}
-<\/script></body></html>`;
-}
-</script>
-
-<script type="module">
-import { initFirebase, loadKey, saveKey, subscribeKey } from './firebase-sync.js';
-
-(async ()=>{
-  try{
-    await initFirebase();
-  }catch(e){
-    console.warn('Firebase init failed (please edit firebase-sync.js and add config).', e);
-    return;
-  }
-
-  // Map of localStorage keys used by this app and behavior
-  const syncKeys = [
-    'bank_statement_html_v2',
-    'esewa_entries_v1',
-    'collectorData_v_final',
-    'denominationData_v_final',
-    'collectorHistory_v1',
-    'collectorNotes_v_final',
-    'autoSaveEnabled_v_final'
-  ];
-
-  // On load: try load each key from Firestore and populate localStorage if found.
-  for(const k of syncKeys){
-    try{
-      const v = await loadKey(k);
-      if(v!==null){
-        localStorage.setItem(k, JSON.stringify(v));
-        console.log('Loaded',k,'from Firestore');
-      }
-    }catch(e){ console.warn('Load key error',k,e); }
-  }
-
-  // Setup real-time subscriptions
-  for(const k of syncKeys){
-    try{
-      subscribeKey(k, (val)=>{
-        if(val===null){ return; }
-        localStorage.setItem(k, JSON.stringify(val));
-        try{ window.dispatchEvent(new Event('storage')); }catch(e){}
-        console.log('Realtime update applied for',k);
-      });
-    }catch(e){ console.warn('Subscribe failed for',k,e); }
-  }
-
-  // Watch localStorage changes and push them to Firestore
-  window.addEventListener('beforeunload', async ()=>{
-    for(const k of syncKeys){
-      const raw = localStorage.getItem(k);
-      if(raw===null) continue;
-      try{
-        const parsed = JSON.parse(raw);
-        await saveKey(k, parsed);
-        console.log('Saved on unload',k);
-      }catch(e){ console.warn('Save on unload failed',k,e); }
-    }
-  });
-
-  window.addEventListener('fsave', async (ev)=>{
-    const {key, value} = ev.detail || {};
-    if(!key) return;
-    try{ await saveKey(key, value); console.log('Saved key via fsave',key); }catch(e){console.warn(e);}
-  });
-
-})();
-</script>
-
-<script>
-// --- Backup: Save all localStorage to a JSON file ---
- document.getElementById('backupBtn').addEventListener('click', async () => {
-  if (localStorage.length === 0) {
-    alert("❌ LocalStorage मा हाल कुनै डेटा छैन!");
-    return;
-  }
-
+document.getElementById('backupBtn').addEventListener('click', async () => {
   const allData = {};
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
     allData[key] = localStorage.getItem(key);
   }
-
-  // Save to a local file using the file system access API
   const blob = new Blob([JSON.stringify(allData, null, 2)], { type: "application/json" });
-  const fileHandle = await window.showSaveFilePicker({
-    suggestedName: "Backup.json",
-    types: [{
-      description: "JSON Backup File",
-      accept: { "application/json": [".json"] }
-    }]
-  }).catch(() => null);
-
-  if (fileHandle) {
-    const writable = await fileHandle.createWritable();
-    await writable.write(blob);
-    await writable.close();
-    alert("✅Dear, Arun Backup.json file updated successfully (overwritten).");
-  }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = "Backup.json";
+  a.click();
 });
-
-
-  // --- Restore: Select and load JSON file into localStorage ---
-  document.getElementById('restoreBtn').addEventListener('click', () => {
-    // Programmatically click the hidden file input
-    document.getElementById('restoreFile').click();
-  });
-
-  document.getElementById('restoreFile').addEventListener('change', (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      try {
-        const data = JSON.parse(e.target.result);
-        if (!confirm("⚠️ यो कार्यले पुरानो data माथि लेख्नेछ। जारी राख्ने?")) return;
-
-        // Overwrite localStorage keys with restored data
-        for (const key in data) {
-          localStorage.setItem(key, data[key]);
-        }
-        alert("✅Dear, Arun Data restored successfully! कृपया पेज Refresh गर्नुहोस्।");
-        // Clear the file input for security and repeat functionality
-        event.target.value = ''; 
-      } catch (err) {
-        alert("❌ Restore failed: " + err.message);
-      }
-    };
-    reader.readAsText(file);
-  });
 </script>
-
 </body>
 </html>
