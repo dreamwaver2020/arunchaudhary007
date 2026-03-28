@@ -117,7 +117,6 @@
 </div>
 
 <script>
-    // Alag Database Key taaki Kharcha Khata sanga mix nahos
     const DB_KEY = 'sahakari_dayetwa_db_final';
     let allData = [];
     let filteredData = [];
@@ -194,26 +193,42 @@
     function updateValue(idx, key, val) { allData[idx][key] = val; }
     function updateColValue(idx, colIdx, type, val) { allData[idx].cols[colIdx][type] = val; }
 
+    // Updated Calculation Logic for Liability (Dayetwa)
     function calc() {
         let runningTotals = Array(7).fill(0);
         let pageTotals = Array(21).fill(0);
+        
         allData.forEach((row, idx) => {
+            let rowNet = 0;
             row.cols.forEach((col, i) => {
                 let d = parseFloat(col.d) || 0;
                 let c = parseFloat(col.c) || 0;
-                runningTotals[i] += (d - c);
+                
+                // Cr (Credit) increases balance, Dr (Debit) decreases balance in Liability
+                runningTotals[i] += (c - d); 
                 row.baki[i] = runningTotals[i];
+                rowNet += runningTotals[i];
+
                 let isCurrentPage = (idx >= (currentPage-1)*recordsPerPage && idx < currentPage*recordsPerPage);
                 if(isCurrentPage) {
-                    pageTotals[i*3] += d; pageTotals[i*3+1] += c;
+                    pageTotals[i*3] += d;
+                    pageTotals[i*3+1] += c;
+                    
                     const tr = document.querySelector(`tr[data-index="${idx}"]`);
-                    if(tr) tr.querySelector(`.b-${i}`).innerText = runningTotals[i].toLocaleString();
+                    if(tr) {
+                        const bakiCell = tr.querySelector(`.b-${i}`);
+                        if(bakiCell) bakiCell.innerText = runningTotals[i].toLocaleString();
+                    }
                 }
             });
-            row.net = runningTotals.reduce((a, b) => a + b, 0);
+            row.net = rowNet;
             const tr = document.querySelector(`tr[data-index="${idx}"]`);
-            if(tr) tr.querySelector('.row-net').innerText = row.net.toLocaleString();
+            if(tr) {
+                const netCell = tr.querySelector('.row-net');
+                if(netCell) netCell.innerText = row.net.toLocaleString();
+            }
         });
+
         for(let j=0; j<21; j++) {
             let f = document.getElementById(`gt-${j}`);
             if(f) f.innerText = pageTotals[j].toLocaleString();
