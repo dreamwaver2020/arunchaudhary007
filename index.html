@@ -289,13 +289,22 @@
   }
   setInterval(updateTime, 1000);
 
-  function handleLogin() {
-    if(document.getElementById('username').value==='Admin' && document.getElementById('password').value==='Arun@123') {
-      document.getElementById('loginPage').style.display='none';
-      document.getElementById('mainPage').style.display='flex';
-    } else { alert("🔕Warning: सावधान! सिस्टम सुरक्षा सक्रिय भयो, झुक्किएर पनि गलत पासवर्ड नहान्नुहोस् - खतरनाक प्रयास: तपाईंको गतिविधि ट्र्याक भइरहेको छ ! ❌"); }
-  }
+ function handleLogin() {
+  const u = document.getElementById('username').value.trim();
+  const p = document.getElementById('password').value.trim();
+  
+  //  इन्कोड गरिएको रूप
+  const keyU = "QWRtaW4=";      
+  const keyP = "QXJ1bkAxMjM=";  
 
+  // btoa() ले तपाईँले हानेको डाटालाई इन्कोड गरेर म्याच गर्छ
+  if (btoa(u) === keyU && btoa(p) === keyP) {
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('mainPage').style.display = 'flex';
+  } else {
+    alert("🔕Warning: सावधान! सिस्टम सुरक्षा सक्रिय भयो, झुक्किएर पनि गलत पासवर्ड नहान्नुहोस् - खतरनाक प्रयास: तपाईंको गतिविधि ट्र्याक भइरहेको छ ! ❌");
+  }
+}
   function toggleFolder(btn) { btn.parentElement.classList.toggle('active'); }
 
   function loadURL(url) {
