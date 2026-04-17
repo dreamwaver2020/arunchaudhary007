@@ -25,7 +25,7 @@
     }
     .login-box button:hover{ transform: scale(1.05); background:#00c8e0; box-shadow: 0 0 15px #00eaff; }
 
-    /* HEADER & ADMIN PANEL - TITLE FONT UPDATED */
+    /* HEADER & ADMIN PANEL */
     header{ 
       background:#666b70; color:rgb(214, 208, 208); padding:0 20px; 
       display:flex; justify-content:space-between; align-items:center; 
@@ -38,15 +38,11 @@
     }
     #engTime { font-size: 13px; color: #fff; }
     #nepDateDisplay { font-size: 17px; font-weight: bold; color: #ffea91; }
-    
-    /* SYNC TIME TEXT */
     #lastSyncTime { font-size: 10px; color: #00ff00; font-weight: 500; margin-top: 2px; }
 
-    /* SMALLER TITLE FONT */
     .title h1 { font-size: 30px; } 
     .title p { font-size: 10px; opacity: 0.8; }
 
-    /* ADMIN BUTTON - RIGHT CORNER CENTER */
     .admin-link-btn {
       background: linear-gradient(45deg, #6200ea, #00eaff);
       color: white; padding: 10px 20px; border-radius: 25px;
@@ -59,12 +55,10 @@
       box-shadow: 0 0 20px rgba(255, 0, 255, 0.7);
     }
 
-    /* BLINKING STATUS */
     .online-status { display:flex; align-items:center; gap:8px; margin-left: auto; margin-right: 30px; }
     .blink { width:12px; height:12px; background:#ff0202; border-radius:50%; animation: blink-anim 1s infinite; box-shadow: 0 0 15px #01ff16; }
     @keyframes blink-anim { 0% {opacity:1;} 50% {opacity:0.2;} 100% {opacity:1;} }
 
-    /* LAYOUT & SIDEBAR */
     .container{ display:grid; grid-template-columns:260px 1fr; height: calc(100vh - 120px); }
     .sidebar{ background:#d8d8da; border-right:1px solid #cfd8dc; padding:15px; overflow-y:auto; }
     .sidebar h3{ font-size:13px; color:#a80606; text-transform:uppercase; margin-bottom:15px; border-bottom: 1px solid #ccc; padding-bottom:5px;}
@@ -75,19 +69,13 @@
       background:white; font-size:15px; display:flex; align-items:center; gap:10px; 
       box-shadow:0 2px 4px rgba(0,0,0,0.05); transition: all 0.3s ease;
     }
-    .folder-btn:hover {
-      background: #003366; color: white; transform: translateX(8px);
-    }
+    .folder-btn:hover { background: #003366; color: white; transform: translateX(8px); }
     
     .folder ul { display:none; list-style:none; margin-left:20px; border-left:2px dashed #003366; padding-left:15px; margin-top: 5px;}
     .folder.active ul { display:block; }
-    .folder ul li a { 
-      text-decoration:none; color:#444; display:block; padding:8px 0; 
-      font-size:14px; transition: 0.3s; 
-    }
+    .folder ul li a { text-decoration:none; color:#444; display:block; padding:8px 0; font-size:14px; transition: 0.3s; }
     .folder ul li a:hover { color:#007bff; padding-left: 10px; font-weight: 600; }
 
-    /* DASHBOARD PLACEHOLDER */
     main { background:#fff; position:relative; overflow:hidden; }
     .dash-img { 
       width:100%; height:100%; 
@@ -96,7 +84,6 @@
     }
     iframe { width:100%; height:100%; border:none; display:none; }
 
-    /* FOOTER BUTTONS ANIMATION */
     footer{ background:#001f3f; color:white; padding:10px 20px; display:flex; justify-content:space-between; align-items:center; border-top:2px solid #00eaff; }
     .footer-btns{ display:flex; gap:10px; }
     footer button{ 
@@ -116,10 +103,10 @@
 <div id="loginPage">
   <div class="login-box">
     <h2> 𝐋𝐨𝐠 𝐈𝐧 ʕʘ̅͜ʘ̅ʔ 🔐</h2>
-    <input type="text" id="username" placeholder="Username">
+    <input type="text" id="username" placeholder="Email Address">
     <input type="password" id="password" placeholder="Password">
     <button onclick="handleLogin()">𝐋𝐨𝐠𝐢𝐧 𝐀𝐜𝐜𝐞𝐬𝐬 🔑</button>
-    <p style="font-size:12px;margin-top:10px;">Please Use Correct Info To Login <b></b>...... <b></b></p>
+    <p style="font-size:12px;margin-top:10px;">Please Use Registered Email To Access <b></b>...... <b></b></p>
   </div>
 </div>
 
@@ -141,7 +128,7 @@
       <div class="blink"></div>
       <span style="color:#00ff00; font-size:13px; font-weight:bold;">𝐀𝐃𝐌𝐈𝐍 𝐎𝐍𝐋𝐈𝐍𝐄</span>
     </div>
-    <a href="https://your-admin-link.com" target="_blank" class="admin-link-btn">👤 𝔸𝔻𝕄𝕀ℕ 𝔸ℂℂ𝔼𝕊𝕊 𝕆ℕ𝕃𝕐</a>
+    <a href="#" class="admin-link-btn">👤 𝔸𝔻𝕄𝕀ℕ 𝔸ℂℂ𝔼𝕊𝕊 𝕆ℕ𝕃𝕐</a>
   </header>
 
   <div class="container">
@@ -157,7 +144,7 @@
       </div>
 
       <div class="folder">
-        <div class="folder-btn" onclick="toggleFolder(this)">📁  𝐒𝐞𝐚𝐫𝐜𝐡 𝐑𝐞𝐜𝐨𝐫𝐝𝐬</div>
+        <div class="folder-btn" onclick="toggleFolder(this)">📁 𝐒𝐞𝐚𝐫𝐜𝐡 𝐑𝐞𝐜𝐨𝐫𝐝𝐬</div>
         <ul>
           <li><a href="#" onclick="loadURL('Online E-Services/Search Data/search_data.html')">🗁 Search Data</a></li>
           <li><a href="#" onclick="loadURL('Online E-Services/Search Data/Signature_Pending.html')">🗁 Signature Check</a></li>
@@ -175,14 +162,14 @@
       </div>
 
       <div class="folder">
-        <div class="folder-btn" onclick="toggleFolder(this)">📁  𝐄-𝐒𝐞𝐰𝐚 𝐔𝐩𝐝𝐚𝐭𝐞𝐬</div>
+        <div class="folder-btn" onclick="toggleFolder(this)">📁 𝐄-𝐒𝐞𝐰𝐚 𝐔𝐩𝐝𝐚𝐭𝐞𝐬</div>
         <ul>
-        <li><a href="#" onclick="loadURL('Online E-Services/Esewa/esewa-records.html')">🗁 Esewa Records</a></li>
+          <li><a href="#" onclick="loadURL('Online E-Services/Esewa/esewa-records.html')">🗁 Esewa Records</a></li>
         </ul>
       </div>
 
       <div class="folder">
-        <div class="folder-btn" onclick="toggleFolder(this)">📁  𝐁𝐚𝐧𝐤 𝐓𝐫𝐚𝐜𝐤</div>
+        <div class="folder-btn" onclick="toggleFolder(this)">📁 𝐁𝐚𝐧𝐤 𝐓𝐫𝐚𝐜𝐤</div>
         <ul>
           <li><a href="#" onclick="loadURL('Online E-Services/Banks/bank-statement-update.html')">🗁 Bank Update</a></li>
           <li><a href="#" onclick="loadURL('Online E-Services/Banks/statement-download.html')">🗁 Statement Download</a></li>
@@ -214,9 +201,9 @@
     <div class="footer-btns">
       <input type="file" id="fileRestore" style="display:none;">
       <button id="syncBtn" onclick="syncCloud()">☁️ CLOUD SYNC</button>
-      <button id="backupBtn" onclick="overwriteBackup()" style="background:#0288d1;">💾 BACKUP</button>
-      <button id="restoreBtn" onclick="document.getElementById('fileRestore').click()" style="background:#2e7d32;">🔄 RESTORE</button>
-      <button id="logoutBtn" onclick="location.reload()" style="background:#d32f2f;">🚪 LOGOUT</button>
+      <button id="backupBtn" onclick="overwriteBackup()">💾 BACKUP</button>
+      <button id="restoreBtn" onclick="document.getElementById('fileRestore').click()">🔄 RESTORE</button>
+      <button id="logoutBtn" onclick="location.reload()">🚪 LOGOUT</button>
     </div>
   </footer>
 </div>
@@ -224,6 +211,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAm-bB0QJHW5zCR_Ay4y63p2vkv3TxjCvU",
@@ -236,9 +224,36 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
+  const auth = getAuth(app);
 
-  // Sync function with Time Update
+  // --- NEW HANDLE LOGIN ---
+  window.handleLogin = async () => {
+    const email = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const btn = document.querySelector(".login-box button");
+
+    btn.innerText = "⏳ AUTHENTICATING...";
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      document.getElementById('loginPage').style.display = 'none';
+      document.getElementById('mainPage').style.display = 'flex';
+      
+      // Pull data from cloud after login
+      const snap = await get(ref(db, 'arun_cloud_master_final'));
+      if (snap.exists()) {
+        const d = snap.val();
+        for (let k in d) localStorage.setItem(k, d[k]);
+        updateLastSyncUI();
+      }
+    } catch (e) {
+      alert("🔕Warning: सावधान! सिस्टम सुरक्षा सक्रिय भयो, झुक्किएर पनि गलत पासवर्ड नहान्नुहोस् - खतरनाक प्रयास: तपाईंको गतिविधि ट्र्याक भइरहेको छ ! ❌");
+      btn.innerText = "𝐋𝐨𝐠𝐢𝐧 𝐀𝐜𝐜𝐞𝐬𝐬 🔑";
+    }
+  };
+
+  // --- SYNC FUNCTION ---
   window.syncCloud = async (isAuto = false) => {
+    if(!auth.currentUser) return;
     const btn = document.getElementById('syncBtn');
     if(!isAuto) btn.innerText = "⏳ SYNCING...";
     try {
@@ -248,12 +263,7 @@
         if (!/[.#$/\[\]]/.test(k)) data[k] = localStorage.getItem(k);
       }
       await set(ref(db, 'arun_cloud_master_final'), data);
-      
-      // Update the Sync Time display as per the request
-      const now = new Date();
-      const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true });
-      document.getElementById('lastSyncTime').innerText = "Last Cloud Sync: " + timeStr;
-
+      updateLastSyncUI();
       if(!isAuto) alert("✅ डाटा क्लाउडमा सुरक्षित भयो!");
     } catch (e) { 
       if(!isAuto) alert("Error: " + e.message); 
@@ -261,27 +271,20 @@
     if(!isAuto) btn.innerText = "☁️ CLOUD SYNC";
   };
 
-  // Auto Backup every 10 minutes (600,000 ms)
-  setInterval(() => {
-    console.log("Auto-syncing to cloud...");
-    syncCloud(true);
-  }, 600000);
-
-  // Initial pull from cloud
-  const snap = await get(ref(db, 'arun_cloud_master_final'));
-  if (snap.exists()) {
-    const d = snap.val();
-    for (let k in d) localStorage.setItem(k, d[k]);
+  function updateLastSyncUI() {
     const now = new Date();
-    document.getElementById('lastSyncTime').innerText = "Last Cloud Sync: " + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true });
+    const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true });
+    document.getElementById('lastSyncTime').innerText = "Last Cloud Sync: " + timeStr;
   }
+
+  setInterval(() => syncCloud(true), 600000); // Auto backup every 10 min
 </script>
 
 <script>
+  // UI LOGIC (No changes here)
   function updateTime() {
     const now = new Date();
     document.getElementById('engTime').innerText = now.toLocaleString('en-GB', { weekday:'short', day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit' }).replace(',','');
-    
     const h = now.getHours().toString().padStart(2,'0');
     const m = now.getMinutes().toString().padStart(2,'0');
     const s = now.getSeconds().toString().padStart(2,'0');
@@ -289,22 +292,6 @@
   }
   setInterval(updateTime, 1000);
 
- function handleLogin() {
-  const u = document.getElementById('username').value.trim();
-  const p = document.getElementById('password').value.trim();
-  
-  //  इन्कोड गरिएको रूप
-  const keyU = "QWRtaW4=";      
-  const keyP = "QXJ1bkAxMjM=";  
-
-  // btoa() ले तपाईँले हानेको डाटालाई इन्कोड गरेर म्याच गर्छ
-  if (btoa(u) === keyU && btoa(p) === keyP) {
-    document.getElementById('loginPage').style.display = 'none';
-    document.getElementById('mainPage').style.display = 'flex';
-  } else {
-    alert("🔕Warning: सावधान! सिस्टम सुरक्षा सक्रिय भयो, झुक्किएर पनि गलत पासवर्ड नहान्नुहोस् - खतरनाक प्रयास: तपाईंको गतिविधि ट्र्याक भइरहेको छ ! ❌");
-  }
-}
   function toggleFolder(btn) { btn.parentElement.classList.toggle('active'); }
 
   function loadURL(url) {
@@ -334,13 +321,9 @@
     reader.onload = () => {
       try {
         const d = JSON.parse(reader.result);
-        for(let k in d) {
-          localStorage.setItem(k, d[k]);
-        }
-        alert("✅ Data Restored Successfully (Login Maintained)!");
-      } catch (err) {
-        alert("Error: Invalid Backup File");
-      }
+        for(let k in d) { localStorage.setItem(k, d[k]); }
+        alert("✅ Data Restored Successfully!");
+      } catch (err) { alert("Error: Invalid Backup File"); }
     };
     reader.readAsText(e.target.files[0]);
   };
