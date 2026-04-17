@@ -197,7 +197,7 @@
   </div>
 
   <footer>
-    <div style="font-size:11px; letter-spacing:1px;">© 2026 𝐃𝐚𝐭𝐚𝐛𝐚𝐬𝐞 𝐖𝐢𝐭𝐡 𝐂𝐥𝐨𝐮𝐝 𝐃𝐞परर्टमेन्ट 𝗚𝗼𝗼𝗴𝗹𝗲 𝗖𝗼𝗺𝗽𝗮𝗻𝘆 𝗟𝘁𝗱 | 𝐒𝐄𝐂𝐔𝐑𝐄 𝐄𝐍𝐂𝐑𝐘𝐏𝐓𝐄𝐃 |</div>
+    <div style="font-size:11px; letter-spacing:1px;">© 2026 𝐃𝐚𝐭𝐚𝐛𝐚𝐬𝐞 𝐖𝐢𝐭𝐡 𝐂𝐥𝐨𝐮𝐝 𝐃𝐞𝐩𝐚𝐫𝐭𝐦𝐞𝐧𝐭 𝗚𝗼𝗼𝗴𝗹𝗲 𝗖𝗼𝗺𝗽𝗮𝗻𝘆 𝗟𝘁𝗱 | 𝐒𝐄𝐂𝐔𝐑𝐄 𝐄𝐍𝐂𝐑𝐘𝐏𝐓𝐄𝐃 |</div>
     <div class="footer-btns">
       <input type="file" id="fileRestore" style="display:none;">
       <button id="syncBtn" onclick="syncCloud()">☁️ CLOUD SYNC</button>
@@ -210,8 +210,8 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAm-bB0QJHW5zCR_Ay4y63p2vkv3TxjCvU",
@@ -226,7 +226,24 @@
   const db = getDatabase(app);
   const auth = getAuth(app);
 
-  // --- NEW HANDLE LOGIN ---
+  // --- Realtime Update Listener ---
+  // यो कोडले डाटाबेसमा जे परिवर्तन हुन्छ, अर्को ब्राउजरमा तुरुन्तै देखाउँछ।
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      const masterRef = ref(db, 'arun_cloud_master_final');
+      onValue(masterRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          for (let key in data) {
+            localStorage.setItem(key, data[key]);
+          }
+          updateLastSyncUI();
+          // थप: यदि iframe भित्रको पेजलाई पनि रिफ्रेस गर्नुपर्ने भए यहाँ logic थप्न सकिन्छ
+        }
+      });
+    }
+  });
+
   window.handleLogin = async () => {
     const email = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value.trim();
@@ -237,21 +254,13 @@
       await signInWithEmailAndPassword(auth, email, password);
       document.getElementById('loginPage').style.display = 'none';
       document.getElementById('mainPage').style.display = 'flex';
-      
-      // Pull data from cloud after login
-      const snap = await get(ref(db, 'arun_cloud_master_final'));
-      if (snap.exists()) {
-        const d = snap.val();
-        for (let k in d) localStorage.setItem(k, d[k]);
-        updateLastSyncUI();
-      }
+      // onValue ले डाटा स्वतः तान्नेछ
     } catch (e) {
       alert("🔕Warning: सावधान! सिस्टम सुरक्षा सक्रिय भयो, झुक्किएर पनि गलत पासवर्ड नहान्नुहोस् - खतरनाक प्रयास: तपाईंको गतिविधि ट्र्याक भइरहेको छ ! ❌");
       btn.innerText = "𝐋𝐨𝐠𝐢𝐧 𝐀𝐜𝐜𝐞𝐬𝐬 🔑";
     }
   };
 
-  // --- SYNC FUNCTION ---
   window.syncCloud = async (isAuto = false) => {
     if(!auth.currentUser) return;
     const btn = document.getElementById('syncBtn');
@@ -263,7 +272,6 @@
         if (!/[.#$/\[\]]/.test(k)) data[k] = localStorage.getItem(k);
       }
       await set(ref(db, 'arun_cloud_master_final'), data);
-      updateLastSyncUI();
       if(!isAuto) alert("✅ डाटा क्लाउडमा सुरक्षित भयो!");
     } catch (e) { 
       if(!isAuto) alert("Error: " + e.message); 
@@ -277,11 +285,10 @@
     document.getElementById('lastSyncTime').innerText = "Last Cloud Sync: " + timeStr;
   }
 
-  setInterval(() => syncCloud(true), 600000); // Auto backup every 10 min
+  setInterval(() => syncCloud(true), 600000); 
 </script>
 
 <script>
-  // UI LOGIC (No changes here)
   function updateTime() {
     const now = new Date();
     document.getElementById('engTime').innerText = now.toLocaleString('en-GB', { weekday:'short', day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit' }).replace(',','');
