@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>𝐁𝐚𝐧𝐤 𝐑𝐞𝐜𝐨𝐫𝐝𝐬- 𝐀𝐩𝐩𝐫𝐨𝐯𝐞/𝐏𝐞𝐧𝐝𝐢𝐧𝐠𝐬</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #2563eb;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f97316;
+            --slate-50: #f8fafc;
+            --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0;
+            --slate-300: #cbd5e1;
+            --slate-400: #94a3b8;
+            --slate-500: #64748b;
+            --slate-700: #475569;
+            --slate-800: #1e293b;
+            --pending-light: #fee2e2;
+            --pending-dark: #b91c1c;
+            --approved-light: #dcfce7;
+            --approved-dark: #15803d;
+        }
+        
+        html { scroll-behavior: smooth; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; 
+            background: linear-gradient(135deg, #f1f5f9 0%, #e0f2fe 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; }
+        
+        /* ===== HEADER ===== */
+        header { 
+            margin-bottom: 32px; 
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 16px;
+            animation: slideInDown 0.6s ease-out;
+        }
+        
+        h1 { 
+            font-size: 28px; 
+            font-weight: 900; 
+            background: linear-gradient(135deg, var(--primary) 0%, #1e40af 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+        
+        /* ===== STATISTICS SECTION ===== */
+        .stats { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
+            gap: 12px; 
+            margin-bottom: 24px;
+        }
+        
+        .stat-box { 
+            background: white; 
+            padding: 14px 16px; 
+            border-radius: 10px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .stat-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+        }
+        
+        .stat-label { 
+            font-size: 10px; 
+            font-weight: 800; 
+            color: var(--slate-500); 
+            text-transform: uppercase; 
+            letter-spacing: 0.4px;
+            margin-bottom: 4px; 
+        }
+        
+        .stat-value { 
+            font-size: 20px; 
+            font-weight: 900; 
+            color: var(--slate-800);
+            font-variant-numeric: tabular-nums;
+        }
+        
+        /* ===== FORM SECTION ===== */
+        .form-box { 
+            background: white; 
+            padding: 24px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 28px;
+            animation: fadeInUp 0.7s ease-out 0.1s both;
+        }
+        
+        .form-grid { 
+            display: grid; 
+            grid-template-columns: 1.2fr 1.2fr 1.2fr 1fr auto;
+            gap: 12px; 
+            align-items: end;
+            margin-bottom: 16px;
+        }
+        
+        .search-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 12px;
+        }
+        
+        #search-box {
+            width: 300px !important;
+            max-width: 100%;
+        }
+        
+        label { 
+            display: block; 
+            font-size: 11px; 
+            font-weight: 800; 
+            color: var(--slate-700); 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        select,
+        textarea { 
+            width: 100%; 
+            padding: 10px 12px; 
+            border: 2px solid var(--slate-200); 
+            border-radius: 8px; 
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            background: var(--slate-50);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+        }
+        
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus,
+        textarea:focus { 
+            outline: none; 
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+            transform: scale(1.02);
+        }
+        
+        #record-ref {
+            padding: 10px 12px;
+        }
+        
+        .radio-group { 
+            display: flex; 
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        
+        /* Toggle Switch Styling */
+        .status-toggle-group {
+            display: flex;
+            gap: 2px;
+            background: var(--slate-100);
+            padding: 2px;
+            border-radius: 5px;
+            border: 2px solid var(--slate-200);
+            transition: all 0.3s ease;
+            width: fit-content;
+        }
+        
+        .status-toggle-group input[type="radio"] {
+            display: none;
+        }
+        
+        .status-toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            padding: 8px 13px;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            background: transparent;
+            color: var(--slate-600);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            user-select: none;
+            white-space: nowrap;
+        }
+        
+        input[name="status"]:nth-of-type(1) + .status-toggle-label {
+            color: var(--primary);
+        }
+        
+        input[name="status"]:nth-of-type(1):checked + .status-toggle-label {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 3px 12px rgba(37, 99, 235, 0.4);
+            transform: scale(1.05) translateY(-2px);
+            animation: togglePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        input[name="status"]:nth-of-type(2) + .status-toggle-label {
+            color: var(--success);
+        }
+        
+        input[name="status"]:nth-of-type(2):checked + .status-toggle-label {
+            background: var(--success);
+            color: white;
+            box-shadow: 0 3px 12px rgba(34, 197, 94, 0.4);
+            transform: scale(1.05) translateY(-2px);
+            animation: togglePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .radio-group > div {
+            position: relative;
+            flex: 0 1 auto;
+            min-width: auto;
+        }
+        
+        .radio-group input[type="radio"] { 
+            display: none; 
+        }
+        
+        .radio-label { 
+            display: block;
+            padding: 4px 8px; 
+            border: 1.5px solid var(--slate-200); 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 10px; 
+            text-align: center; 
+            user-select: none;
+            transition: all 0.3s ease;
+            margin: 0;
+            font-weight: 700;
+            background: var(--slate-50);
+            white-space: nowrap;
+        }
+        
+        input[type="radio"]:checked + .radio-label { 
+            background: var(--primary);
+            color: white; 
+            border-color: var(--primary);
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+            transform: scale(1.08);
+            animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .button-group { 
+            display: flex; 
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        button { 
+            padding: 10px 16px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 700; 
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        button:active::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .btn-primary { 
+            background: linear-gradient(135deg, var(--primary) 0%, #1e40af 100%); 
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .btn-primary:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        
+        .btn-secondary { 
+            background: var(--slate-100);
+            color: var(--slate-700);
+            border: 2px solid var(--slate-200);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--slate-200);
+            border-color: var(--slate-300);
+        }
+        
+        .btn-danger { 
+            background: linear-gradient(135deg, var(--danger) 0%, #991b1b 100%);
+            color: white; 
+            padding: 6px 10px;
+            font-size: 11px;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+        
+        /* ===== SEARCH SECTION ===== */
+        .search-container {
+            background: white;
+            padding: 12px 16px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 24px;
+            animation: fadeInUp 0.7s ease-out 0.2s both;
+        }
+        
+        .search-wrapper {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            justify-content: flex-end;
+        }
+        
+        #search-box {
+            flex: 1;
+            max-width: 400px;
+            padding: 8px 12px;
+            border: 1.5px solid var(--slate-200);
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        #search-box:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            outline: none;
+        }
+        
+        .search-container .btn-search {
+            background: linear-gradient(135deg, var(--success) 0%, #15803d 100%);
+            color: white;
+            padding: 8px 14px;
+            box-shadow: 0 2px 8px rgba(34, 197, 94, 0.25);
+            font-size: 11px;
+            font-weight: 700;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .search-container .btn-search:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.35);
+        }
+        
+        .search-container .btn-search:active {
+            transform: translateY(0);
+        }
+        
+        /* ===== TABLE SECTION ===== */
+        .table-container { 
+            background: white; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            overflow: hidden;
+            animation: fadeInUp 0.7s ease-out 0.3s both;
+        }
+        
+        table { 
+            width: 100%; 
+            border-collapse: collapse;
+        }
+        
+        th { 
+            background: linear-gradient(135deg, var(--slate-50) 0%, var(--slate-100) 100%);
+            padding: 8px 8px;
+            text-align: left; 
+            font-size: 10px; 
+            font-weight: 800; 
+            color: var(--slate-700);
+            border-bottom: 3px solid var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        td { 
+            padding: 6px 8px;
+            border-bottom: 1px solid var(--slate-200);
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        /* ===== ROW COLOR CODING ===== */
+        tr[data-status="Pending"] {
+            background: linear-gradient(90deg, rgba(254, 226, 226, 0.6) 0%, rgba(254, 226, 226, 0) 100%);
+        }
+        
+        tr[data-status="Pending"]:hover {
+            background: linear-gradient(90deg, rgba(254, 226, 226, 0.8) 0%, rgba(254, 226, 226, 0.1) 100%) !important;
+        }
+        
+        tr[data-status="Pending"] td {
+            color: var(--pending-dark);
+            font-weight: 600;
+            border-bottom-color: rgba(185, 28, 28, 0.2);
+        }
+        
+        tr[data-status="Approved"] {
+            background: linear-gradient(90deg, rgba(220, 252, 231, 0.6) 0%, rgba(220, 252, 231, 0) 100%);
+        }
+        
+        tr[data-status="Approved"]:hover {
+            background: linear-gradient(90deg, rgba(220, 252, 231, 0.8) 0%, rgba(220, 252, 231, 0.1) 100%) !important;
+        }
+        
+        tr[data-status="Approved"] td {
+            color: var(--approved-dark);
+            font-weight: 600;
+            border-bottom-color: rgba(21, 128, 61, 0.2);
+        }
+        
+        /* ===== STATUS BADGE ===== */
+        .status-badge { 
+            display: inline-block; 
+            padding: 4px 10px; 
+            border-radius: 6px; 
+            font-size: 10px; 
+            font-weight: 800; 
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        
+        .status-pending { 
+            background: var(--pending-light);
+            color: var(--pending-dark);
+            border: 2px solid var(--pending-dark);
+            box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.1);
+        }
+        
+        .status-approved { 
+            background: var(--approved-light);
+            color: var(--approved-dark);
+            border: 2px solid var(--approved-dark);
+            box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.1);
+        }
+        
+        /* ===== TEXT STYLES ===== */
+        .text-receipt { color: var(--primary); font-weight: 800; }
+        .text-payment { color: var(--warning); font-weight: 800; }
+        .text-right { text-align: right; }
+        .text-mono { font-family: 'JetBrains Mono', 'Courier New', monospace; font-weight: 600; }
+        .text-center { text-align: center; }
+        
+        /* ===== ACTION BUTTONS ===== */
+        .action-buttons {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn-action {
+            padding: 6px 10px;
+            font-size: 11px;
+            border-radius: 6px;
+            border: 2px solid;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-weight: 700;
+            background: white;
+        }
+        
+        .btn-edit {
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .btn-edit:hover {
+            background: rgba(37, 99, 235, 0.1);
+            transform: scale(1.1);
+        }
+        
+        .btn-toggle {
+            color: var(--success);
+            border-color: var(--success);
+        }
+        
+        .btn-toggle:hover {
+            background: rgba(34, 197, 94, 0.1);
+            transform: scale(1.1);
+        }
+        
+        /* ===== PAGINATION ===== */
+        .pagination { 
+            padding: 16px; 
+            text-align: center; 
+            font-size: 12px; 
+            background: linear-gradient(135deg, var(--slate-50) 0%, var(--slate-100) 100%);
+            border-top: 2px solid var(--slate-200);
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .pagination button { 
+            padding: 8px 14px;
+            font-size: 11px;
+        }
+        
+        .pagination-info {
+            font-weight: 700;
+            color: var(--slate-700);
+            min-width: 150px;
+        }
+        
+        /* ===== ANIMATIONS ===== */
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+        
+        @keyframes shimmer {
+            0% {
+                background-position: -1000px 0;
+            }
+            100% {
+                background-position: 1000px 0;
+            }
+        }
+        
+        @keyframes popIn {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.15);
+            }
+            100% {
+                transform: scale(1.08);
+            }
+        }
+        
+        @keyframes togglePop {
+            0% {
+                transform: scale(0.95) translateY(2px);
+                opacity: 0.8;
+            }
+            50% {
+                transform: scale(1.08) translateY(-3px);
+            }
+            100% {
+                transform: scale(1.05) translateY(-2px);
+                opacity: 1;
+            }
+        }
+        
+        .loading {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        /* ===== NO RECORDS ===== */
+        .no-records {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--slate-500);
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .no-records svg {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+        /* ===== PRINT STYLES ===== */
+        @media print { 
+            .no-print { display: none !important; } 
+            body { background: white; }
+            .form-box, .search-container { display: none; }
+        }
+        
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                flex-direction: row;
+                gap: 8px;
+            }
+            
+            .btn-primary, .btn-secondary {
+                flex: 1;
+            }
+            
+            .search-wrapper {
+                flex-direction: column;
+                align-items: stretch;
+                justify-content: flex-start;
+            }
+            
+            #search-box {
+                max-width: 100%;
+            }
+            
+            .search-container .btn-search {
+                width: 100%;
+            }
+            
+            table { font-size: 12px; }
+            td { padding: 8px; }
+            
+            .stat-box {
+                padding: 12px 14px;
+            }
+            
+            .stat-value {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>𝐁𝐚𝐧𝐤 𝐑𝐞𝐜𝐨𝐫𝐝𝐬- 𝐀𝐩𝐩𝐫𝐨𝐯𝐞/𝐏𝐞𝐧𝐝𝐢𝐧𝐠𝐬</h1>
+    </header>
+    
+    <!-- ===== STATISTICS ===== -->
+    <div class="stats">
+        <div class="stat-box" style="border-left-color: var(--success);">
+            <div class="stat-label">💰 Bank Balance</div>
+            <div class="stat-value" id="sum-bank">$0.00</div>
+        </div>
+        <div class="stat-box" style="border-left-color: var(--primary);">
+            <div class="stat-label">📈 Net Balance</div>
+            <div class="stat-value" id="sum-net">$0.00</div>
+        </div>
+        <div class="stat-box" style="border-left-color: var(--danger);">
+            <div class="stat-label">⏳ Pending</div>
+            <div class="stat-value" id="sum-pending" style="color: var(--danger);">$0.00</div>
+        </div>
+        <div class="stat-box" style="border-left-color: var(--success);">
+            <div class="stat-label">✅ Approved</div>
+            <div class="stat-value" id="sum-approved" style="color: var(--success);">$0.00</div>
+        </div>
+    </div>
+    
+    <!-- ===== FORM ===== -->
+    <div class="form-box no-print">
+        <form id="record-form">
+            <input type="hidden" id="edit-id">
+            
+            <!-- Ref Code field (full width at top) -->
+            <div style="margin-bottom: 20px; animation: slideInDown 0.6s ease-out 0.1s both;">
+                <label>Ref Code</label>
+                <input type="text" id="record-ref" required placeholder="Reference code details here...">
+            </div>
+            
+            <!-- Form fields grid -->
+            <div class="form-grid" style="margin-bottom: 16px;">
+                <div style="animation: fadeInUp 0.6s ease-out 0.1s both;">
+                    <label>Bank</label>
+                    <select id="record-bank" required>
+                        <option value="">𝐒𝐞𝐥𝐞𝐜𝐭 𝐁𝐚𝐧𝐤</option>
+                        <option value="Sunrise Bank">𝐒𝐮𝐧𝐫𝐢𝐬𝐞 𝐁𝐚𝐧𝐤 𝐋𝐢𝐦𝐢𝐭𝐞𝐝</option>
+                        <option value="Fonepay">𝐅𝐨𝐧𝐞 𝐏𝐚𝐲</option>
+                        <option value="Nepal Pay">𝐍𝐞𝐩𝐚𝐥 𝐏𝐚𝐲</option>
+                        <option value="NCBL">𝐍𝐂𝐁𝐋</option>
+                        <option value="Nefscun">𝐍𝐄𝐅𝐒𝐂𝐔𝐍</option>
+                    </select>
+                </div>
+                <div style="animation: fadeInUp 0.6s ease-out 0.15s both;">
+                    <label>Type</label>
+                    <select id="record-type">
+                        <option value="Receipt">Receipt (+)</option>
+                        <option value="Payment">Payment (-)</option>
+                    </select>
+                </div>
+                <div style="animation: fadeInUp 0.6s ease-out 0.2s both;">
+                    <label>Amount</label>
+                    <input type="number" id="record-amount" required step="0.01" placeholder="0.00">
+                </div>
+                <div style="animation: fadeInUp 0.6s ease-out 0.25s both;">
+                    <label>Status</label>
+                    <div class="status-toggle-group">
+                        <input type="radio" id="st-pending" name="status" value="Pending" checked>
+                        <label for="st-pending" class="status-toggle-label">⏳ Pending</label>
+                        <input type="radio" id="st-approved" name="status" value="Approved">
+                        <label for="st-approved" class="status-toggle-label">✅ Approved</label>
+                    </div>
+                </div>
+                <button type="submit" id="submit-btn" class="btn-primary" style="padding: 8px 16px; font-size: 10px; width: auto; height: fit-content; align-self: flex-end; animation: fadeInUp 0.6s ease-out 0.3s both; white-space: nowrap;">SAVE</button>
+            </div>
+            
+            <!-- Search box below save button, right-aligned -->
+            <div class="search-section" style="animation: slideInDown 0.6s ease-out 0.05s both; position: relative;">
+                <input type="text" id="search-box" list="ref-suggestions" placeholder="🔍 Ref code (3+ chars) or pending/approved..." style="padding: 10px 12px; border: 2px solid var(--slate-200); border-radius: 8px; font-size: 12px; font-weight: 500; transition: all 0.3s ease; background: white;" onfocus="this.style.borderColor='var(--primary)'; this.style.boxShadow='0 0 0 3px rgba(37, 99, 235, 0.1)';" onblur="this.style.borderColor='var(--slate-200)'; this.style.boxShadow='none';" oninput="autoSearch()">
+                <datalist id="ref-suggestions"></datalist>
+            </div>
+        </form>
+    </div>
+    
+    <!-- ===== TABLE ===== -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 40%;">Ref Code</th>
+                    <th style="width: 9%;">Date</th>
+                    <th style="width: 10%;">Bank</th>
+                    <th style="width: 7%;">Type</th>
+                    <th class="text-right" style="width: 9%;">Amount</th>
+                    <th class="text-center" style="width: 10%;">Status</th>
+                    <th class="text-center no-print" style="width: 11%;">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                <tr>
+                    <td colspan="7" class="no-records">
+                        <div>📭 No records yet</div>
+                        <div style="font-size: 12px; margin-top: 8px; color: var(--slate-400);">Add a new record to get started</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="pagination no-print">
+            <button class="btn-secondary" onclick="prevPage()">← PREV</button>
+            <span class="pagination-info" id="pagination-info">PAGE 1 / 1</span>
+            <button class="btn-secondary" onclick="nextPage()">NEXT →</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ===== CORE STATE MANAGEMENT =====
+let allRecords = JSON.parse(localStorage.getItem('esewa_records')) || [];
+let filteredRecords = [...allRecords];
+let currentPage = 1;
+const recordsPerPage = 20;
+let isEditing = false;
+let searchActive = false;
+
+// ===== UTILITY FUNCTIONS =====
+function formatCurrency(num) {
+    return '$' + parseFloat(num || 0).toFixed(2);
+}
+
+function generateId() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
+
+// ===== SEARCH FUNCTIONALITY =====
+function performSearch() {
+    autoSearch();
+}
+
+// Update datalist suggestions based on first 3+ chars
+function updateSuggestions(searchTerm) {
+    const datalist = document.getElementById('ref-suggestions');
+    datalist.innerHTML = '';
+    
+    if (searchTerm.length < 3) return;
+    
+    // Get unique matching ref codes
+    const seen = new Set();
+    allRecords.forEach(record => {
+        const ref = record.refCode.toUpperCase();
+        if (ref.startsWith(searchTerm.toUpperCase()) && !seen.has(ref)) {
+            seen.add(ref);
+            const option = document.createElement('option');
+            option.value = record.refCode;
+            datalist.appendChild(option);
+        }
+    });
+}
+
+// Auto search - ref code (first 3 chars trigger, contains match) + status
+function autoSearch() {
+    const searchTerm = document.getElementById('search-box').value.trim();
+    const lower = searchTerm.toLowerCase();
+
+    // Update autocomplete suggestions
+    updateSuggestions(searchTerm);
+    
+    if (!searchTerm) {
+        filteredRecords = [...allRecords];
+        searchActive = false;
+        currentPage = 1;
+        renderTable();
+        return;
+    }
+    
+    // Status keyword match
+    const isPendingSearch = 'pending'.startsWith(lower) && lower.length >= 3;
+    const isApprovedSearch = 'approved'.startsWith(lower) && lower.length >= 3;
+    
+    // Only search ref code if 3+ chars typed
+    const doRefSearch = searchTerm.length >= 3;
+
+    filteredRecords = allRecords.filter(record => {
+        const refMatch = doRefSearch && record.refCode.toUpperCase().includes(searchTerm.toUpperCase());
+        const statusMatch = (isPendingSearch && record.status === 'Pending') ||
+                            (isApprovedSearch && record.status === 'Approved');
+        return refMatch || statusMatch;
+    });
+    
+    searchActive = true;
+    currentPage = 1;
+    renderTable();
+}
+
+function resetSearch() {
+    document.getElementById('search-box').value = '';
+    filteredRecords = [...allRecords];
+    searchActive = false;
+    currentPage = 1;
+    renderTable();
+}
+
+// ===== STATISTICS UPDATE =====
+function updateUI() {
+    const stats = {
+        bankReceipts: 0,
+        bankPayments: 0,
+        pendingReceipts: 0,
+        pendingPayments: 0,
+        approvedReceipts: 0,
+        approvedPayments: 0
+    };
+    
+    allRecords.forEach(record => {
+        const amount = parseFloat(record.amount || 0);
+        if (record.status === 'Approved') {
+            record.type === 'Receipt' ? (stats.approvedReceipts += amount) : (stats.approvedPayments += amount);
+        } else {
+            record.type === 'Receipt' ? (stats.pendingReceipts += amount) : (stats.pendingPayments += amount);
+        }
+    });
+    
+    // Animate stat changes
+    animateStatUpdate('sum-bank', formatCurrency(stats.approvedReceipts - stats.approvedPayments));
+    animateStatUpdate('sum-net', formatCurrency((stats.approvedReceipts + stats.pendingReceipts) - (stats.approvedPayments + stats.pendingPayments)));
+    animateStatUpdate('sum-pending', formatCurrency(stats.pendingReceipts - stats.pendingPayments));
+    animateStatUpdate('sum-approved', formatCurrency(stats.approvedReceipts - stats.approvedPayments));
+    
+    localStorage.setItem('esewa_records', JSON.stringify(allRecords));
+    filteredRecords = searchActive ? filteredRecords : [...allRecords];
+    currentPage = 1;
+    renderTable();
+}
+
+function animateStatUpdate(elementId, value) {
+    const element = document.getElementById(elementId);
+    element.style.animation = 'none';
+    setTimeout(() => {
+        element.textContent = value;
+        element.style.animation = 'pulse 0.6s ease-out';
+    }, 10);
+}
+
+// ===== TABLE RENDERING =====
+function renderTable() {
+    const tbody = document.getElementById('table-body');
+    tbody.innerHTML = '';
+    
+    if (filteredRecords.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" class="no-records">
+                    <div>📭 No records found</div>
+                    <div style="font-size: 12px; margin-top: 8px; color: var(--slate-400);">
+                        ${searchActive ? 'Try adjusting your search criteria' : 'Add a new record to get started'}
+                    </div>
+                </td>
+            </tr>
+        `;
+        document.getElementById('pagination-info').textContent = 'PAGE 1 / 1';
+        return;
+    }
+    
+    let runningBalance = 0;
+    const recordsWithBalance = [...filteredRecords]
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .map(record => {
+            const amount = parseFloat(record.amount || 0);
+            runningBalance += record.type === 'Receipt' ? amount : -amount;
+            return { ...record, balance: runningBalance };
+        });
+    
+    const start = (currentPage - 1) * recordsPerPage;
+    const pageData = recordsWithBalance.slice(start, start + recordsPerPage);
+    
+    pageData.forEach((record, index) => {
+        const tr = document.createElement('tr');
+        tr.setAttribute('data-status', record.status);
+        tr.style.animation = `fadeInUp 0.4s ease-out ${index * 0.05}s both`;
+        
+        const balanceColor = record.balance >= 0 ? 'var(--success)' : 'var(--danger)';
+        
+        tr.innerHTML = `
+            <td style="font-weight: 700; color: var(--primary); font-size: 12px; word-wrap: break-word; word-break: break-all; padding: 5px 8px; line-height: 1.4;">${record.refCode}</td>
+            <td style="font-size: 12px; white-space: nowrap; padding: 5px 6px;">${record.date}</td>
+            <td style="font-weight: 600; color: #1e40af; font-size: 12px; white-space: nowrap; padding: 5px 6px;">${record.bank}</td>
+            <td class="${record.type === 'Receipt' ? 'text-receipt' : 'text-payment'}" style="font-size: 12px; white-space: nowrap; padding: 5px 6px;">${record.type}</td>
+            <td class="text-right text-mono" style="font-size: 12px; white-space: nowrap; padding: 5px 6px;">${formatCurrency(record.amount)}</td>
+            <td class="text-center" style="font-size: 12px; padding: 5px 4px;">
+                <span class="status-badge status-${record.status.toLowerCase()}" style="font-size: 11px; padding: 2px 6px;">
+                    ${record.status === 'Approved' ? '✅' : '⏳'} ${record.status}
+                </span>
+            </td>
+            <td class="text-center no-print" style="padding: 5px 4px;">
+                <div class="action-buttons">
+                    <button class="btn-action btn-edit" onclick="editRecord('${record.id}')" title="Edit">✏️</button>
+                    <button class="btn-action btn-toggle" onclick="toggleStatus('${record.id}')" title="Toggle Status">🔄</button>
+                    <button class="btn-action btn-danger" onclick="deleteRecord('${record.id}')" title="Delete">🗑️</button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+    
+    const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
+    document.getElementById('pagination-info').textContent = `PAGE ${currentPage} / ${totalPages}`;
+}
+
+// ===== FORM OPERATIONS =====
+window.editRecord = (id) => {
+    const record = allRecords.find(r => r.id === id);
+    if (!record) return;
+    
+    isEditing = true;
+    document.getElementById('edit-id').value = record.id;
+    document.getElementById('record-ref').value = record.refCode;
+    document.getElementById('record-bank').value = record.bank;
+    document.getElementById('record-type').value = record.type;
+    document.getElementById('record-amount').value = record.amount;
+    document.querySelector(`input[name="status"][value="${record.status}"]`).checked = true;
+    
+    const submitBtn = document.getElementById('submit-btn');
+    submitBtn.textContent = 'UPDATE';
+    submitBtn.style.background = 'linear-gradient(135deg, var(--warning) 0%, #c2410c 100%)';
+    submitBtn.style.boxShadow = '0 4px 12px rgba(249, 115, 22, 0.3)';
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+window.resetForm = () => {
+    isEditing = false;
+    document.getElementById('record-form').reset();
+    document.getElementById('edit-id').value = '';
+    
+    const submitBtn = document.getElementById('submit-btn');
+    submitBtn.textContent = 'SAVE';
+    submitBtn.style.background = 'linear-gradient(135deg, var(--primary) 0%, #1e40af 100%)';
+    submitBtn.style.boxShadow = '0 4px 12px rgba(37, 99, 235, 0.3)';
+};
+
+document.getElementById('record-form').onsubmit = (event) => {
+    event.preventDefault();
+    
+    const data = {
+        id: isEditing ? document.getElementById('edit-id').value : generateId(),
+        date: new Date().toISOString().split('T')[0],
+        refCode: document.getElementById('record-ref').value.toUpperCase(),
+        bank: document.getElementById('record-bank').value,
+        name: 'N/A',
+        type: document.getElementById('record-type').value,
+        amount: document.getElementById('record-amount').value,
+        status: document.querySelector('input[name="status"]:checked').value
+    };
+    
+    if (isEditing) {
+        const index = allRecords.findIndex(r => r.id === data.id);
+        if (index !== -1) allRecords[index] = data;
+    } else {
+        allRecords.unshift(data);
+    }
+    
+    resetForm();
+    updateUI();
+};
+
+window.toggleStatus = (id) => {
+    const index = allRecords.findIndex(r => r.id === id);
+    if (index !== -1) {
+        allRecords[index].status = allRecords[index].status === 'Approved' ? 'Pending' : 'Approved';
+        updateUI();
+    }
+};
+
+window.deleteRecord = (id) => {
+    if (confirm('🗑️ Delete this record? This action cannot be undone.')) {
+        allRecords = allRecords.filter(r => r.id !== id);
+        updateUI();
+    }
+};
+
+// ===== PAGINATION =====
+window.prevPage = () => {
+    if (currentPage > 1) {
+        currentPage--;
+        renderTable();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+};
+
+window.nextPage = () => {
+    const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
+    if (currentPage < totalPages) {
+        currentPage++;
+        renderTable();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+};
+
+// ===== INITIALIZATION =====
+document.getElementById('search-box').addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+        performSearch();
+    }
+});
+
+updateUI();
+</script>
+
+</body>
+</html>
