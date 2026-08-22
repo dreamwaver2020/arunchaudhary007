@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank Reconciliation Statement - Entry</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-blue: #0A2540;
+            --accent-blue: #635BFF;
+            --hover-blue: #4B45E4;
+            --gradient-header: linear-gradient(135deg, #0A2540 0%, #1A365D 100%);
+            --bg-light: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --border-color: #E2E8F0;
+            --text-main: #1E293B;
+            --text-muted: #64748B;
+            --success-green: #10B981;
+            --warning-amber: #F59E0B;
+            --danger-red: #EF4444;
+            --table-header-bg: #F1F5F9;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            padding: 30px 15px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1380px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #EEF2FF;
+            color: var(--accent-blue);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .action-btns { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+        .btn {
+            padding: 9px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            position: relative;
+            user-select: none;
+            outline: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px -3px rgba(0, 0, 0, 0.15), 0 3px 6px -2px rgba(0, 0, 0, 0.08);
+        }
+
+        .btn:active {
+            transform: translateY(1px) scale(0.97) !important;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+            filter: brightness(0.92);
+        }
+
+        .btn-add { background-color: var(--accent-blue); color: white; }
+        .btn-new-month { background-color: #D97706; color: white; }
+        .btn-new-month:hover { background-color: #B45309; }
+        .btn-save { background-color: #2563EB; color: white; }
+        .btn-print { background-color: var(--primary-blue); color: white; }
+
+        .master-date-box {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #F1F5F9;
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--primary-blue);
+        }
+
+        .master-date-box input[type="date"] {
+            border: 1px solid #CBD5E1;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            outline: none;
+            background-color: #FFFFFF;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .master-date-box input[type="date"]:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 2px rgba(99, 91, 255, 0.2);
+        }
+
+        .save-status {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-right: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .header-card {
+            background: var(--gradient-header);
+            color: white;
+            padding: 28px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .header-card h2 { font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+        .header-card h3 { font-size: 15px; font-weight: 500; opacity: 0.9; margin-bottom: 12px; }
+        .header-card h4 { font-size: 16px; font-weight: 600; }
+
+        .editable-date-container {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            background: rgba(255, 255, 255, 0.12);
+            padding: 6px 18px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .editable-heading {
+            font-family: 'Outfit', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            color: #6EE7B7;
+            outline: none;
+        }
+
+        .table-container { width: 100%; overflow-x: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+        table { width: 100%; border-collapse: collapse; font-size: 12.5px; background-color: #FFFFFF; }
+        
+        th { 
+            background-color: var(--table-header-bg); 
+            color: var(--primary-blue); 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            font-size: 11px; 
+            padding: 8px 6px; 
+            border-bottom: 2px solid var(--border-color); 
+            border-right: 1px solid var(--border-color); 
+            text-align: center; 
+        }
+        
+        td { 
+            padding: 4px 8px; 
+            border-bottom: 1px solid var(--border-color); 
+            border-right: 1px solid var(--border-color); 
+            color: var(--text-main); 
+            height: 32px;
+        }
+
+        td[contenteditable="true"] { outline: none; border-radius: 4px; }
+        td[contenteditable="true"]:focus { background-color: #FFFFFF; box-shadow: inset 0 0 0 2px var(--accent-blue); }
+
+        .date-picker-input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-family: 'Inter', sans-serif;
+            font-size: 12.5px;
+            color: var(--text-muted);
+            text-align: center;
+            outline: none;
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
+        }
+        
+        .date-picker-input::-webkit-calendar-picker-indicator {
+            display: none !important;
+            -webkit-appearance: none;
+        }
+
+        .col-sn { width: 40px; text-align: center; font-weight: 600; color: var(--text-muted); }
+        .col-bank { font-weight: 600; }
+        .col-branch { color: var(--text-muted); }
+        .col-date { text-align: center; color: var(--text-muted); min-width: 110px; }
+        .col-num { text-align: right; font-family: 'Inter', monospace; font-weight: 500; }
+        .col-diff { text-align: right; font-family: 'Inter', monospace; font-weight: 700; }
+        
+        .diff-positive { color: var(--success-green); }
+        .diff-negative { color: var(--danger-red); }
+        .diff-zero { color: var(--text-muted); }
+
+        .row-total { background-color: #F1F5F9 !important; font-weight: 700; }
+        .row-total td { border-top: 2px solid var(--primary-blue); border-bottom: 2px solid var(--primary-blue); font-size: 13px; color: var(--primary-blue); padding: 8px 10px; }
+
+        .btn-delete { 
+            background: none; 
+            border: none; 
+            color: #94A3B8; 
+            cursor: pointer; 
+            font-size: 13px; 
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.15s ease;
+        }
+        .btn-delete:hover { color: var(--danger-red); background-color: #FEE2E2; }
+        .btn-delete:active { transform: scale(0.85); }
+
+        .signature-section { margin-top: 40px; display: flex; justify-content: space-between; gap: 20px; padding: 0 20px; }
+        .sig-card { flex: 1; background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 12px; padding: 15px; text-align: center; }
+        .sig-line { border-top: 2px dashed #CBD5E1; margin: 25px auto 10px auto; width: 80%; }
+        .sig-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--accent-blue); font-weight: 700; }
+        .sig-name { font-size: 13px; font-weight: 700; color: var(--primary-blue); margin-top: 4px; outline: none; }
+        .sig-designation { font-size: 11px; color: var(--text-muted); margin-top: 2px; outline: none; }
+
+        @page { size: A4 landscape; margin: 8mm; }
+        @media print {
+            body { background: white; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .container { box-shadow: none; padding: 0; border: none; width: 100%; max-width: 100%; }
+            .toolbar, .no-print, .edit-icon { display: none !important; }
+            .header-card { background: #0A2540 !important; color: white !important; padding: 12px; margin-bottom: 15px; border-radius: 6px; }
+            table { font-size: 9.5px; width: 100%; }
+            th { font-size: 9px; padding: 4px 2px; background-color: #F1F5F9 !important; border: 1px solid #CBD5E1; }
+            td { padding: 3px 4px; border: 1px solid #E2E8F0; height: auto; }
+            .date-picker-input { font-size: 9.5px; color: black; }
+            .signature-section { margin-top: 20px; gap: 15px; padding: 0; }
+            .sig-card { padding: 8px; border: 1px solid #CBD5E1 !important; background: transparent !important; }
+            .sig-line { margin: 20px auto 6px auto; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="toolbar no-print">
+        <div class="brand-badge">
+            <i class="fa-solid fa-shield-halved"></i> Financial Ledger Reconciliation
+        </div>
+        <div class="action-btns">
+            <div class="master-date-box">
+                <i class="fa-regular fa-calendar-days"></i> Apply Date All: 
+                <input type="date" id="masterDate" onchange="applyDateToAllRows(this.value)">
+            </div>
+            <span class="save-status" id="saveStatus"><i class="fa-solid fa-circle-check" style="color: var(--success-green);"></i> Ready</span>
+            <button class="btn btn-save" onclick="manualSave()"><i class="fa-solid fa-floppy-disk"></i> Save Now</button>
+            <button class="btn btn-new-month" onclick="startNewMonth()"><i class="fa-solid fa-calendar-plus"></i> New Date</button>
+            <button class="btn btn-add" onclick="addRow()"><i class="fa-solid fa-plus"></i> Add Entry</button>
+            <button class="btn btn-print" onclick="window.print()"><i class="fa-solid fa-print"></i> Print / PDF</button>
+        </div>
+    </div>
+
+    <div class="header-card">
+        <h2>𝐔𝐝𝐠𝐚𝐦 𝐒𝐚𝐯𝐢𝐧𝐠 & 𝐂𝐫𝐞𝐝𝐢𝐭 𝐂𝐨𝐨𝐩𝐞𝐫𝐚𝐭𝐢𝐯𝐞 𝐋𝐢𝐦𝐢𝐭𝐞𝐝.</h2>
+        <h3>Itahari-04, Sunsari, Nepal</h3>
+        <h4>Bank Reconciliation Statement</h4>
+        
+        <div class="editable-date-container">
+            <span class="editable-heading" contenteditable="true" id="editablePeriod">Shrawan 2082</span>
+            <i class="fa-solid fa-pen edit-icon"></i>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table id="reconTable">
+            <thead>
+                <tr>
+                    <th class="col-sn">S.n</th>
+                    <th>Bank Name</th>
+                    <th>Branch</th>
+                    <th>Bank Account No</th>
+                    <th>Last Reconciled</th>
+                    <th>As per Software (NPR)</th>
+                    <th>As per Bank (NPR)</th>
+                    <th>Difference (NPR)</th>
+                    <th>Reason</th>
+                    <th>Solution</th>
+                    <th class="no-print" style="width: 35px;"></th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+            <tfoot>
+                <tr class="row-total">
+                    <td colspan="5" style="text-align: center;">Total Amount</td>
+                    <td id="totalSoftware" class="col-num">0.00</td>
+                    <td id="totalBank" class="col-num">0.00</td>
+                    <td id="totalDiff" class="col-diff">0.00</td>
+                    <td colspan="2"></td>
+                    <td class="no-print"></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <div class="signature-section">
+        <div class="sig-card">
+            <div class="sig-title">Prepared By</div>
+            <div class="sig-line"></div>
+            <div class="sig-name" contenteditable="true" id="sig1_name">Arun Kumar Chaudhary</div>
+            <div class="sig-designation" contenteditable="true" id="sig1_desg">Office Accountant</div>
+        </div>
+        <div class="sig-card">
+            <div class="sig-title">Certified By</div>
+            <div class="sig-line"></div>
+            <div class="sig-name" contenteditable="true" id="sig2_name">Chandra Prasad Dhakal</div>
+            <div class="sig-designation" contenteditable="true" id="sig2_desg">Loan Officer</div>
+        </div>
+        <div class="sig-card">
+            <div class="sig-title">Approved By</div>
+            <div class="sig-line"></div>
+            <div class="sig-name" contenteditable="true" id="sig3_name">Rabin Chaudhary</div>
+            <div class="sig-designation" contenteditable="true" id="sig3_desg">Manager</div>
+        </div>
+    </div>
+</div>
+
+<!-- Firebase Modular SDK -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_PROJECT_ID.appspot.com",
+        messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+        appId: "YOUR_APP_ID"
+    };
+
+    let db;
+    try {
+        const app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+    } catch(e) {
+        console.warn("Firebase config is missing. Local mode running.", e);
+    }
+
+    window.saveToFirebaseHistory = async function(historyArray) {
+        if (!db) return;
+        try {
+            await setDoc(doc(db, "reconciliations", "history_data"), { history: historyArray });
+            console.log("Firebase Array sync successful");
+        } catch (e) {
+            console.error("Firebase save error: ", e);
+        }
+    }
+
+    window.loadFromFirebaseHistory = async function() {
+        if (!db) return null;
+        try {
+            const docRef = doc(db, "reconciliations", "history_data");
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                return docSnap.data().history;
+            }
+        } catch (e) {
+            console.error("Firebase load error: ", e);
+        }
+        return null;
+    }
+</script>
+
+<script>
+    const DEFAULT_DATA = [
+        { bank: "Laxmi Sunrise Bank", branch: "Itahari, Sunsari", accNo: "", date: "2026-07-16", sw: "5,807,298.18", bankVal: "5,819,719.34", reason: "", solution: "Next Month will be Reconcile" },
+        { bank: "Nepal Bank Ltd.", branch: "Itahari, Sunsari", accNo: "", date: "2026-07-16", sw: "1,733.00", bankVal: "0.00", reason: "", solution: "" },
+        { bank: "Nabil Bank Ltd.", branch: "Itahari, Sunsari", accNo: "", date: "2026-07-16", sw: "1,035.27", bankVal: "0.00", reason: "", solution: "" },
+        { bank: "Himalayan Bank Ltd.", branch: "Itahari, Sunsari", accNo: "", date: "2026-07-16", sw: "6,300.30", bankVal: "0.00", reason: "", solution: "" },
+        { bank: "National Co-operative Bank", branch: "Itahari, Sunsari", accNo: "", date: "2026-07-16", sw: "21,568,230.08", bankVal: "21,568,230.08", reason: "", solution: "Next Month will be Reconcile" },
+        { bank: "Nefscun", branch: "Itahari, Sunsari", accNo: "", date: "2026-07-16", sw: "13,566,769.43", bankVal: "13,566,769.43", reason: "", solution: "Next Month will be Reconcile" },
+        { bank: "Nefscun Share Dividend", branch: "Itahari, Sunsari", accNo: "", date: "2026-07-16", sw: "563.57", bankVal: "563.57", reason: "", solution: "" },
+        { bank: "Lumbini Bank Ltd.", branch: "Itahari, Sunsari", accNo: "", date: "2026-07-16", sw: "5,244.58", bankVal: "0.00", reason: "", solution: "" },
+        { bank: "Esewa", branch: "Itahari, Sunsari", accNo: "", date: "2026-07-16", sw: "443,318.78", bankVal: "446,318.78", reason: "", solution: "" },
+        { bank: "Khalti Pay Group", branch: "Itahari, Sunsari", accNo: "", date: "2026-07-16", sw: "81,162.16", bankVal: "81,162.16", reason: "", solution: "" },
+        { bank: "Khalti Merchant", branch: "Itahari, Sunsari", accNo: "", date: "2026-07-16", sw: "11,316.00", bankVal: "11,316.00", reason: "", solution: "" },
+        { bank: "Khalti Pasal", branch: "Itahari, Sunsari", accNo: "", date: "2026-07-16", sw: "9,018.63", bankVal: "9,018.63", reason: "", solution: "" }
+    ];
+
+    function updateSignatures() {
+        document.getElementById('sig1_name').innerText = "Arun Kumar Chaudhary";
+        document.getElementById('sig1_desg').innerText = "Office Accountant";
+        document.getElementById('sig2_name').innerText = "Chandra Prasad Dhakal";
+        document.getElementById('sig2_desg').innerText = "Loan Officer";
+        document.getElementById('sig3_name').innerText = "Rabin Chaudhary";
+        document.getElementById('sig3_desg').innerText = "Manager";
+    }
+
+    function applyDateToAllRows(selectedDate) {
+        if (!selectedDate) return;
+        let dateInputs = document.querySelectorAll('#tableBody .date-picker-input');
+        dateInputs.forEach(input => {
+            input.value = selectedDate;
+        });
+    }
+
+    function parseVal(val) {
+        if (!val) return 0;
+        let cleaned = val.toString().replace(/,/g, '').trim();
+        let num = parseFloat(cleaned);
+        return isNaN(num) ? 0 : num;
+    }
+
+    function formatVal(num) {
+        return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function calculateRow(element) {
+        let tr = element.closest('tr');
+        let swVal = parseVal(tr.querySelector('.num-sw').innerText);
+        let bankVal = parseVal(tr.querySelector('.num-bank').innerText);
+        
+        let diffCell = tr.querySelector('.num-diff');
+        let diff = bankVal - swVal;
+        
+        diffCell.innerText = formatVal(diff);
+        diffCell.classList.remove('diff-positive', 'diff-negative', 'diff-zero');
+        if (diff > 0) diffCell.classList.add('diff-positive');
+        else if (diff < 0) diffCell.classList.add('diff-negative');
+        else diffCell.classList.add('diff-zero');
+
+        updateTotals();
+    }
+
+    function updateTotals() {
+        let rows = document.querySelectorAll('#tableBody tr');
+        let totalSw = 0;
+        let totalBank = 0;
+
+        rows.forEach(row => {
+            let sw = parseVal(row.querySelector('.num-sw')?.innerText);
+            let bank = parseVal(row.querySelector('.num-bank')?.innerText);
+            
+            totalSw += sw;
+            totalBank += bank;
+
+            let diffCell = row.querySelector('.num-diff');
+            if (diffCell) {
+                let diff = bank - sw;
+                diffCell.classList.remove('diff-positive', 'diff-negative', 'diff-zero');
+                if (diff > 0) diffCell.classList.add('diff-positive');
+                else if (diff < 0) diffCell.classList.add('diff-negative');
+                else diffCell.classList.add('diff-zero');
+            }
+        });
+
+        let totalDiff = totalBank - totalSw;
+
+        document.getElementById('totalSoftware').innerText = formatVal(totalSw);
+        document.getElementById('totalBank').innerText = formatVal(totalBank);
+        
+        let totalDiffEl = document.getElementById('totalDiff');
+        totalDiffEl.innerText = formatVal(totalDiff);
+        totalDiffEl.classList.remove('diff-positive', 'diff-negative', 'diff-zero');
+        if (totalDiff > 0) totalDiffEl.classList.add('diff-positive');
+        else if (totalDiff < 0) totalDiffEl.classList.add('diff-negative');
+        else totalDiffEl.classList.add('diff-zero');
+    }
+
+    function renderTable(dataRows) {
+        let tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+        dataRows.forEach((item, index) => {
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="col-sn">${index + 1}</td>
+                <td contenteditable="true" class="col-bank">${item.bank || ''}</td>
+                <td contenteditable="true" class="col-branch">${item.branch || ''}</td>
+                <td contenteditable="true">${item.accNo || ''}</td>
+                <td class="col-date"><input type="date" class="date-picker-input" value="${item.date || ''}"></td>
+                <td contenteditable="true" class="col-num num-sw" oninput="calculateRow(this)">${item.sw || '0.00'}</td>
+                <td contenteditable="true" class="col-num num-bank" oninput="calculateRow(this)">${item.bankVal || '0.00'}</td>
+                <td class="col-diff num-diff">0.00</td>
+                <td contenteditable="true">${item.reason || ''}</td>
+                <td contenteditable="true">${item.solution || ''}</td>
+                <td class="no-print text-center"><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash-can"></i></button></td>
+            `;
+            tbody.appendChild(tr);
+            calculateRow(tr.querySelector('.num-sw'));
+        });
+        updateTotals();
+    }
+
+    function collectData() {
+        let period = document.getElementById('editablePeriod').innerText.trim();
+        let rowsData = [];
+        document.querySelectorAll('#tableBody tr').forEach(tr => {
+            let dateInput = tr.querySelector('.date-picker-input');
+            rowsData.push({
+                bank: tr.children[1].innerText.trim(),
+                branch: tr.children[2].innerText.trim(),
+                accNo: tr.children[3].innerText.trim(),
+                date: dateInput ? dateInput.value : '',
+                sw: tr.children[5].innerText.trim(),
+                bankVal: tr.children[6].innerText.trim(),
+                reason: tr.children[8].innerText.trim(),
+                solution: tr.children[9].innerText.trim(),
+            });
+        });
+
+        let signatures = {
+            sig1_name: document.getElementById('sig1_name').innerText,
+            sig1_desg: document.getElementById('sig1_desg').innerText,
+            sig2_name: document.getElementById('sig2_name').innerText,
+            sig2_desg: document.getElementById('sig2_desg').innerText,
+            sig3_name: document.getElementById('sig3_name').innerText,
+            sig3_desg: document.getElementById('sig3_desg').innerText,
+        };
+
+        return { period, rowsData, signatures, updatedAt: new Date().toISOString() };
+    }
+
+    async function saveAllData(isManual = false) {
+        let currentRecord = collectData();
+        
+        let history = JSON.parse(localStorage.getItem('bankReconHistory')) || [];
+
+        let existingIndex = history.findIndex(h => h.period.toLowerCase() === currentRecord.period.toLowerCase());
+        if (existingIndex !== -1) {
+            history[existingIndex] = currentRecord;
+        } else {
+            history.push(currentRecord);
+        }
+
+        localStorage.setItem('bankReconHistory', JSON.stringify(history));
+
+        if (window.saveToFirebaseHistory) {
+            await window.saveToFirebaseHistory(history);
+        }
+
+        let statusEl = document.getElementById('saveStatus');
+        statusEl.innerHTML = `<i class="fa-solid fa-circle-check" style="color: var(--success-green);"></i> ${isManual ? 'Saved to History!' : 'Auto Saved'}`;
+        setTimeout(() => {
+            statusEl.innerHTML = `<i class="fa-solid fa-circle-check" style="color: var(--success-green);"></i> Ready`;
+        }, 2000);
+    }
+
+    function manualSave() {
+        saveAllData(true);
+    }
+
+    function startNewMonth() {
+        if (confirm("पुराना महिनाको डाटा History मा सुरक्षित छ। नयाँ महिनाको नयाँ डाटा इन्ट्री सुरु गर्ने?")) {
+            saveAllData(true);
+
+            document.getElementById('masterDate').value = '';
+            document.querySelectorAll('#tableBody tr').forEach(tr => {
+                let dateInput = tr.querySelector('.date-picker-input');
+                if (dateInput) dateInput.value = '';
+                tr.children[5].innerText = '0.00';
+                tr.children[6].innerText = '0.00';
+                tr.children[7].innerText = '0.00';
+                tr.children[8].innerText = '';
+                tr.children[9].innerText = '';
+                calculateRow(tr.children[5]);
+            });
+            document.getElementById('editablePeriod').innerText = "Bhadra 2082";
+            saveAllData(true);
+        }
+    }
+
+    function addRow() {
+        let tbody = document.getElementById('tableBody');
+        let sn = tbody.children.length + 1;
+        let masterDateVal = document.getElementById('masterDate').value || '';
+        let tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="col-sn">${sn}</td>
+            <td contenteditable="true" class="col-bank">New Bank Name</td>
+            <td contenteditable="true" class="col-branch">Itahari, Sunsari</td>
+            <td contenteditable="true"></td>
+            <td class="col-date"><input type="date" class="date-picker-input" value="${masterDateVal}"></td>
+            <td contenteditable="true" class="col-num num-sw" oninput="calculateRow(this)">0.00</td>
+            <td contenteditable="true" class="col-num num-bank" oninput="calculateRow(this)">0.00</td>
+            <td class="col-diff num-diff diff-zero">0.00</td>
+            <td contenteditable="true"></td>
+            <td contenteditable="true"></td>
+            <td class="no-print text-center"><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash-can"></i></button></td>
+        `;
+        tbody.appendChild(tr);
+        reindexRows();
+        updateTotals();
+    }
+
+    function deleteRow(btn) {
+        let tr = btn.closest('tr');
+        tr.remove();
+        reindexRows();
+        updateTotals();
+    }
+
+    function reindexRows() {
+        let rows = document.querySelectorAll('#tableBody tr');
+        rows.forEach((row, index) => {
+            row.querySelector('.col-sn').innerText = index + 1;
+        });
+    }
+
+    async function loadData() {
+        let history = JSON.parse(localStorage.getItem('bankReconHistory'));
+
+        if (window.loadFromFirebaseHistory) {
+            let fbHistory = await window.loadFromFirebaseHistory();
+            if (fbHistory) history = fbHistory;
+        }
+
+        if (history && history.length > 0) {
+            let latest = history[history.length - 1];
+            if (latest.period) document.getElementById('editablePeriod').innerText = latest.period;
+            if (latest.rowsData) renderTable(latest.rowsData);
+        } else {
+            renderTable(DEFAULT_DATA);
+        }
+        
+        // Force Update New Signature Names
+        updateSignatures();
+        saveAllData(false);
+    }
+
+    window.onload = function() {
+        loadData();
+        setInterval(() => {
+            saveAllData(false);
+        }, 5000);
+    };
+</script>
+
+</body>
+</html>
