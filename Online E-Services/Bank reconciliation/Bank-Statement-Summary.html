@@ -140,6 +140,7 @@
         }
 
         .btn-action:hover { background: #4B45E4; }
+        .btn-action:disabled { background: #CBD5E1; cursor: not-allowed; }
         .btn-print-modal { background: var(--primary-blue); }
         .btn-print-modal:hover { background: #1A365D; }
         .btn-combined { background: #059669; }
@@ -195,6 +196,22 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+
+        /* Pagination Styling */
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .page-info {
+            font-weight: 600;
+            color: var(--primary-blue);
         }
 
         .modal {
@@ -290,7 +307,7 @@
         @page { size: A4 landscape; margin: 6mm; }
 
         @media print {
-            .filter-card, .top-bar, .no-print, #statementList { display: none !important; }
+            .filter-card, .top-bar, .no-print, #statementList, .pagination-container { display: none !important; }
             body { padding: 0; background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-size: 10px; }
             .container { border: none; box-shadow: none; padding: 0; width: 100%; max-width: 100%; }
             .modal { display: block !important; position: relative; background: transparent; backdrop-filter: none; }
@@ -345,16 +362,27 @@
     <div class="filter-card no-print">
         <div class="search-group">
             <i class="fa-solid fa-calendar-days"></i>
-            <input type="text" id="monthSearch" placeholder="महिना बाट खोज्नुहोस्..." onkeyup="renderReport()">
+            <input type="text" id="monthSearch" placeholder="महिना बाट खोज्नुहोस्..." onkeyup="resetAndRender()">
         </div>
         
         <div class="search-group">
             <i class="fa-solid fa-building-columns"></i>
-            <input type="text" id="bankSearch" placeholder="बैंकको नाम (Min 3 Letters)..." onkeyup="renderReport()">
+            <input type="text" id="bankSearch" placeholder="बैंकको नाम (Min 3 Letters)..." onkeyup="resetAndRender()">
         </div>
     </div>
 
     <div id="statementList"></div>
+
+    <!-- Pagination Controls -->
+    <div class="pagination-container no-print" id="paginationControls">
+        <button class="btn-action" id="prevBtn" onclick="changePage(-1)">
+            <i class="fa-solid fa-chevron-left"></i> Previous
+        </button>
+        <span class="page-info" id="pageInfo">Page 1 of 1</span>
+        <button class="btn-action" id="nextBtn" onclick="changePage(1)">
+            Next <i class="fa-solid fa-chevron-right"></i>
+        </button>
+    </div>
 </div>
 
 <div id="detailModal" class="modal">
@@ -435,6 +463,9 @@
 </script>
 
 <script>
+    let currentPage = 1;
+    const itemsPerPage = 18;
+
     function parseVal(val) {
         if (!val) return 0;
         let cleaned = val.toString().replace(/,/g, '').trim();
@@ -459,13 +490,25 @@
         return history;
     }
 
+    function resetAndRender() {
+        currentPage = 1;
+        renderReport();
+    }
+
+    function changePage(direction) {
+        currentPage += direction;
+        renderReport();
+    }
+
     function renderReport() {
         let history = getHistoryData();
         const listDiv = document.getElementById('statementList');
+        const paginationControls = document.getElementById('paginationControls');
         listDiv.innerHTML = "";
 
         if (history.length === 0) {
             listDiv.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">कुनै Monthly Statement भेटिएन। पहिले Main Entry File मा Save गर्नुहोस्।</div>`;
+            paginationControls.style.display = "none";
             return;
         }
 
@@ -478,7 +521,24 @@
         const monthQuery = document.getElementById('monthSearch').value.toLowerCase().trim();
         const bankQuery = document.getElementById('bankSearch').value.toLowerCase().trim();
 
-        // Combined View Trigger when Bank Search Query length >= 3
+        // Filter the dataset based on search queries
+        let filteredHistory = history.filter((monthRecord) => {
+            let period = monthRecord.period || 'Shrawan 2082';
+            let rows = monthRecord.rowsData || [];
+
+            if (monthQuery && !period.toLowerCase().includes(monthQuery)) {
+                return false;
+            }
+
+            if (bankQuery.length >= 3) {
+                let matchedBankNames = rows.filter(r => r.bank && r.bank.toLowerCase().includes(bankQuery));
+                if (matchedBankNames.length === 0) return false;
+            }
+
+            return true;
+        });
+
+        // Combined View Banner Trigger when Bank Search Query length >= 3
         if (bankQuery.length >= 3) {
             let combinedData = [];
             history.forEach(monthRecord => {
@@ -486,10 +546,7 @@
                 let rows = monthRecord.rowsData || [];
                 rows.forEach(r => {
                     if (r.bank && r.bank.toLowerCase().includes(bankQuery)) {
-                        combinedData.push({
-                            period: period,
-                            ...r
-                        });
+                        combinedData.push({ period, ...r });
                     }
                 });
             });
@@ -510,26 +567,34 @@
             }
         }
 
-        let visibleCount = 0;
+        if (filteredHistory.length === 0) {
+            listDiv.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">तपाईंले खोज्नुभएको विवरणसँग मिल्दो कुनै डाटा भेटिएन।</div>`;
+            paginationControls.style.display = "none";
+            return;
+        }
 
-        history.forEach((monthRecord) => {
+        paginationControls.style.display = "flex";
+
+        // Calculate Pagination Slice
+        const totalPages = Math.ceil(filteredHistory.length / itemsPerPage);
+        if (currentPage < 1) currentPage = 1;
+        if (currentPage > totalPages) currentPage = totalPages;
+
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const paginatedItems = filteredHistory.slice(startIndex, endIndex);
+
+        // Render Cards for current page only
+        paginatedItems.forEach((monthRecord) => {
             let period = monthRecord.period || 'Shrawan 2082';
             let rows = monthRecord.rowsData || [];
-
-            if (monthQuery && !period.toLowerCase().includes(monthQuery)) {
-                return;
-            }
 
             let matchedBankNames = [];
             if (bankQuery.length >= 3) {
                 matchedBankNames = rows
                     .filter(r => r.bank && r.bank.toLowerCase().includes(bankQuery))
                     .map(r => r.bank);
-
-                if (matchedBankNames.length === 0) return;
             }
-
-            visibleCount++;
 
             let totSw = 0, totBank = 0;
             rows.forEach(r => {
@@ -560,9 +625,10 @@
             listDiv.appendChild(card);
         });
 
-        if (visibleCount === 0 && bankQuery.length < 3) {
-            listDiv.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">तपाईंले खोज्नुभएको विवरणसँग मिल्दो कुनै डाटा भेटिएन।</div>`;
-        }
+        // Update Pagination Controls UI
+        document.getElementById('pageInfo').innerText = `Page ${currentPage} of ${totalPages}`;
+        document.getElementById('prevBtn').disabled = currentPage === 1;
+        document.getElementById('nextBtn').disabled = currentPage === totalPages;
     }
 
     // Function to show Combined Bank Report in Modal
