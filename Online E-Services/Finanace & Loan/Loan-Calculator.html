@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Colorful Advanced Loan Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #7dd3fc 100%);
+            color: #0f172a;
+        }
+        
+        /* Bright Light Glassmorphism Card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 20px 30px rgba(2, 132, 199, 0.15);
+        }
+
+        /* Tactile Multi-Color Button Click Effect */
+        .btn-click {
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+        }
+        .btn-click:active {
+            transform: scale(0.93) translateY(2px);
+            box-shadow: inset 0 3px 5px rgba(0,0,0,0.3) !important;
+        }
+
+        /* Custom Range Slider */
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            background: #0284c7;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(2, 132, 199, 0.4);
+            transition: transform 0.1s ease;
+        }
+        input[type="range"]::-webkit-slider-thumb:active {
+            transform: scale(1.2);
+        }
+
+        /* LANDSCAPE PRINT STYLING */
+        @media print {
+            @page {
+                size: A4 landscape;
+                margin: 10mm;
+            }
+            html, body {
+                background: #ffffff !important;
+                color: #0f172a !important;
+                font-size: 9.5pt !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                height: auto !important;
+                overflow: visible !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .glass-card {
+                background: none !important;
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            .print-only-header {
+                display: block !important;
+                border-bottom: 2px solid #0284c7;
+                padding-bottom: 6px;
+                margin-bottom: 12px;
+            }
+            .print-summary-grid {
+                display: grid !important;
+                grid-template-columns: repeat(7, 1fr) !important;
+                gap: 6px !important;
+                background-color: #f8fafc !important;
+                border: 1px solid #cbd5e1 !important;
+                padding: 8px 12px !important;
+                border-radius: 6px !important;
+                margin-bottom: 12px !important;
+            }
+            .print-summary-item {
+                border-right: 1px solid #cbd5e1;
+                padding-right: 6px;
+            }
+            .print-summary-item:last-child {
+                border-right: none;
+            }
+            .print-summary-label {
+                font-size: 7pt !important;
+                color: #475569 !important;
+                text-transform: uppercase;
+                font-weight: 700;
+            }
+            .print-summary-val {
+                font-size: 9.5pt !important;
+                font-weight: 700 !important;
+                color: #0f172a !important;
+            }
+            .table-container {
+                max-height: none !important;
+                overflow: visible !important;
+                height: auto !important;
+            }
+            table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+                color: #0f172a !important;
+                font-size: 9pt !important;
+            }
+            tr { page-break-inside: avoid; }
+            thead { display: table-header-group !important; }
+            th {
+                background-color: #e2e8f0 !important;
+                color: #0f172a !important;
+                border: 1px solid #94a3b8 !important;
+                padding: 5px 8px !important;
+            }
+            td {
+                border: 1px solid #cbd5e1 !important;
+                padding: 4px 8px !important;
+            }
+            tr:nth-child(even) { background-color: #f8fafc !important; }
+        }
+
+        .print-only-header { display: none; }
+    </style>
+</head>
+<body class="min-h-screen p-3 md:p-6 flex flex-col items-center text-xs">
+
+    <!-- PRINT HEADER -->
+    <div class="print-only-header w-full">
+        <div class="flex justify-between items-center mb-1">
+            <div>
+                <h1 class="text-lg font-bold text-slate-800">LOAN PAYMENT SCHEDULE</h1>
+                <p class="text-xs text-slate-500">Full Amortization Statement</p>
+            </div>
+            <div class="text-right text-xs text-slate-500">
+                <span>Print Date: <script>document.write(new Date().toLocaleDateString());</script></span>
+            </div>
+        </div>
+        
+        <div class="print-summary-grid">
+            <div class="print-summary-item">
+                <div class="print-summary-label">Method</div>
+                <div id="printMethod" class="print-summary-val">Fixed EMI</div>
+            </div>
+            <div class="print-summary-item">
+                <div class="print-summary-label">Principal</div>
+                <div id="printPrincipal" class="print-summary-val">Rs. 0</div>
+            </div>
+            <div class="print-summary-item">
+                <div class="print-summary-label">Rate</div>
+                <div id="printRate" class="print-summary-val">0% p.a.</div>
+            </div>
+            <div class="print-summary-item">
+                <div class="print-summary-label">Total Interest</div>
+                <div id="printInterest" class="print-summary-val">Rs. 0</div>
+            </div>
+            <div class="print-summary-item">
+                <div class="print-summary-label">1st EMI / Payment</div>
+                <div id="printEmi" class="print-summary-val">Rs. 0</div>
+            </div>
+            <div class="print-summary-item">
+                <div class="print-summary-label">Start Date</div>
+                <div id="printStartDate" class="print-summary-val">-</div>
+            </div>
+            <div class="print-summary-item">
+                <div class="print-summary-label">Maturity Date</div>
+                <div id="printMaturityDate" class="print-summary-val">-</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Calculator Card -->
+    <div class="no-print w-full max-w-5xl glass-card rounded-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-0 border border-sky-300 mb-6">
+        
+        <!-- Left Column: Controls -->
+        <div class="lg:col-span-7 p-5 md:p-6 border-b lg:border-b-0 lg:border-r border-sky-200 space-y-4">
+            <div class="flex items-center space-x-3">
+                <div class="p-2.5 bg-gradient-to-tr from-sky-500 to-indigo-600 text-white rounded-xl shadow-md shadow-indigo-500/30">
+                    <i class="fa-solid fa-calculator text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold text-slate-800 tracking-wide">Loan Calculator</h1>
+                    <p class="text-[11px] text-sky-800">Vibrant Multi-Color Buttons • Fixed EMI vs Diminishing</p>
+                </div>
+            </div>
+
+            <!-- Colorful Method Switcher Buttons -->
+            <div>
+                <label class="text-[10px] font-bold text-sky-900 uppercase tracking-wider block mb-1.5">Calculation Method (गणना विधि)</label>
+                <div class="grid grid-cols-2 gap-2.5 bg-sky-100/90 p-1.5 rounded-xl border border-sky-200">
+                    <!-- Indigo/Violet Button -->
+                    <button id="btnFixed" onclick="setCalcMethod('fixed')" class="btn-click py-2.5 px-3 rounded-lg font-bold text-xs bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/30 flex items-center justify-center space-x-2 cursor-pointer">
+                        <i class="fa-solid fa-lock text-xs"></i>
+                        <span>1. Fixed EMI Method</span>
+                    </button>
+                    <!-- Emerald/Teal Button -->
+                    <button id="btnDiminishing" onclick="setCalcMethod('diminishing')" class="btn-click py-2.5 px-3 rounded-lg font-bold text-xs text-sky-900 hover:bg-emerald-500/10 flex items-center justify-center space-x-2 cursor-pointer">
+                        <i class="fa-solid fa-chart-line-down text-xs"></i>
+                        <span>2. Diminishing Method</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Inputs -->
+            <div class="space-y-3.5">
+                <!-- Loan Amount -->
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-[11px] font-bold text-slate-700 uppercase">Loan Amount (सावाँ रकम)</label>
+                        <div class="flex items-center bg-white px-2.5 py-1 rounded-lg border border-sky-300 shadow-sm">
+                            <span class="text-sky-700 text-xs font-semibold mr-1">Rs.</span>
+                            <input type="number" id="amountInput" value="500000" class="bg-transparent text-right font-bold text-slate-800 focus:outline-none w-24 text-xs">
+                        </div>
+                    </div>
+                    <input type="range" id="amountSlider" min="10000" max="10000000" step="10000" value="500000" class="w-full h-1.5 bg-sky-200 rounded-lg appearance-none cursor-pointer">
+                </div>
+
+                <!-- Interest Rate -->
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-[11px] font-bold text-slate-700 uppercase">Interest Rate (ब्याज दर % p.a.)</label>
+                        <div class="flex items-center bg-white px-2.5 py-1 rounded-lg border border-sky-300 shadow-sm">
+                            <input type="number" id="rateInput" value="12" step="0.1" class="bg-transparent text-right font-bold text-slate-800 focus:outline-none w-14 text-xs">
+                            <span class="text-sky-700 text-xs font-semibold ml-1">%</span>
+                        </div>
+                    </div>
+                    <input type="range" id="rateSlider" min="1" max="25" step="0.1" value="12" class="w-full h-1.5 bg-sky-200 rounded-lg appearance-none cursor-pointer">
+                </div>
+
+                <!-- Tenure -->
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-[11px] font-bold text-slate-700 uppercase">Tenure (अवधि)</label>
+                        <div class="flex items-center space-x-2">
+                            <div class="flex bg-white px-2.5 py-1 rounded-lg border border-sky-300 shadow-sm">
+                                <input type="number" id="tenureInput" value="5" class="bg-transparent text-right font-bold text-slate-800 focus:outline-none w-14 text-xs">
+                                <span id="tenureUnitText" class="text-sky-700 text-xs font-semibold ml-1">Years</span>
+                            </div>
+                            <!-- Amber / Orange Buttons -->
+                            <div class="flex bg-sky-100 border border-sky-300 rounded-lg p-0.5 text-[11px]">
+                                <button id="btnYears" onclick="setTenureType('years')" class="btn-click px-2.5 py-1 rounded font-bold bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md shadow-amber-500/20">Yr</button>
+                                <button id="btnMonths" onclick="setTenureType('months')" class="btn-click px-2.5 py-1 rounded font-bold text-sky-800 hover:text-sky-950">Mo</button>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="range" id="tenureSlider" min="1" max="30" step="1" value="5" class="w-full h-1.5 bg-sky-200 rounded-lg appearance-none cursor-pointer">
+                </div>
+
+                <!-- Start Date -->
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-[11px] font-bold text-slate-700 uppercase">Loan Start Date (शुरुआती मिति)</label>
+                        <input type="date" id="startDateInput" class="bg-white text-slate-800 font-bold px-2.5 py-1 rounded-lg border border-sky-300 text-xs focus:outline-none shadow-sm">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Badges -->
+            <div class="grid grid-cols-2 gap-3 pt-1">
+                <div class="p-3 bg-white/90 rounded-xl border border-sky-200 shadow-sm">
+                    <span class="text-[10px] text-slate-500 block mb-0.5 uppercase font-semibold">Total Principal</span>
+                    <span id="principalDisplay" class="text-sm font-extrabold text-slate-800">Rs. 0</span>
+                </div>
+                <div class="p-3 bg-white/90 rounded-xl border border-sky-200 shadow-sm">
+                    <span class="text-[10px] text-slate-500 block mb-0.5 uppercase font-semibold">Total Interest</span>
+                    <span id="interestDisplay" class="text-sm font-extrabold text-emerald-600">Rs. 0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Visual Summary & Chart -->
+        <div class="lg:col-span-5 p-5 md:p-6 bg-sky-50/70 flex flex-col justify-between space-y-4">
+            <div>
+                <h2 class="text-[11px] font-bold text-sky-900 uppercase tracking-wider mb-3 text-center lg:text-left">Payment Summary</h2>
+                
+                <!-- Main EMI Box Gradient -->
+                <div class="p-3.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white rounded-xl mb-3 text-center shadow-lg shadow-indigo-500/20">
+                    <span id="emiLabel" class="text-[10px] text-sky-100 uppercase tracking-wider font-bold">Monthly EMI (किस्ता)</span>
+                    <div id="emiDisplay" class="text-2xl font-black mt-0.5 tracking-tight">Rs. 0</div>
+                </div>
+
+                <div class="relative h-36 w-full flex items-center justify-center">
+                    <canvas id="loanChart"></canvas>
+                </div>
+            </div>
+
+            <div class="pt-2 border-t border-sky-200 space-y-1 text-xs">
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-600">Selected Method:</span>
+                    <span id="methodDisplay" class="font-extrabold text-indigo-600">Fixed EMI</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-600">Maturity Date:</span>
+                    <span id="maturityDisplay" class="font-bold text-slate-800">-</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-600">Total Amount:</span>
+                    <span id="totalPayableDisplay" class="font-black text-sky-900 text-base">Rs. 0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Table Container -->
+    <div class="w-full max-w-5xl glass-card rounded-2xl p-4 md:p-5 border border-sky-300 space-y-3">
+        <div class="no-print flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-sky-200 pb-3">
+            <div>
+                <h3 class="text-base font-extrabold text-slate-800">Payment Schedule (ऋण चुक्ता तालिका)</h3>
+                <p id="scheduleSubtitle" class="text-[11px] text-sky-800">Fixed Monthly EMI Breakdown</p>
+            </div>
+            <!-- Rose / Pink Print Button -->
+            <button onclick="window.print()" class="btn-click flex items-center space-x-2 bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white text-xs font-bold px-4 py-2.5 rounded-lg transition shadow-lg shadow-rose-500/30 cursor-pointer">
+                <i class="fa-solid fa-print"></i>
+                <span>Print Landscape Schedule</span>
+            </button>
+        </div>
+
+        <!-- Schedule Table -->
+        <div class="table-container overflow-x-auto max-h-[450px] overflow-y-auto">
+            <table class="w-full text-left text-xs text-slate-700">
+                <thead class="bg-sky-100 text-sky-900 uppercase tracking-wider sticky top-0 backdrop-blur-md text-[10px] font-bold border-b border-sky-300">
+                    <tr>
+                        <th class="py-2.5 px-3 rounded-l-lg">Mth</th>
+                        <th class="py-2.5 px-3">Date (मिति)</th>
+                        <th class="py-2.5 px-3">Payment / EMI</th>
+                        <th class="py-2.5 px-3">Principal (सावाँ)</th>
+                        <th class="py-2.5 px-3">Interest (ब्याज)</th>
+                        <th class="py-2.5 px-3 rounded-r-lg text-right">Remaining Balance</th>
+                    </tr>
+                </thead>
+                <tbody id="scheduleTableBody" class="divide-y divide-sky-100 text-[11px]">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let tenureType = 'years';
+        let calcMethod = 'fixed';
+        let chartInstance = null;
+
+        const amountInput = document.getElementById('amountInput');
+        const amountSlider = document.getElementById('amountSlider');
+        const rateInput = document.getElementById('rateInput');
+        const rateSlider = document.getElementById('rateSlider');
+        const tenureInput = document.getElementById('tenureInput');
+        const tenureSlider = document.getElementById('tenureSlider');
+        const startDateInput = document.getElementById('startDateInput');
+
+        const emiDisplay = document.getElementById('emiDisplay');
+        const emiLabel = document.getElementById('emiLabel');
+        const principalDisplay = document.getElementById('principalDisplay');
+        const interestDisplay = document.getElementById('interestDisplay');
+        const totalPayableDisplay = document.getElementById('totalPayableDisplay');
+        const maturityDisplay = document.getElementById('maturityDisplay');
+        const methodDisplay = document.getElementById('methodDisplay');
+        const tenureUnitText = document.getElementById('tenureUnitText');
+        const scheduleTableBody = document.getElementById('scheduleTableBody');
+        const scheduleSubtitle = document.getElementById('scheduleSubtitle');
+
+        const printPrincipal = document.getElementById('printPrincipal');
+        const printRate = document.getElementById('printRate');
+        const printInterest = document.getElementById('printInterest');
+        const printEmi = document.getElementById('printEmi');
+        const printStartDate = document.getElementById('printStartDate');
+        const printMaturityDate = document.getElementById('printMaturityDate');
+        const printMethod = document.getElementById('printMethod');
+
+        startDateInput.valueAsDate = new Date();
+
+        function formatCurrency(val) {
+            return 'Rs. ' + Number(val).toLocaleString('en-IN', { maximumFractionDigits: 0 });
+        }
+
+        function formatDate(dateObj) {
+            return dateObj.toISOString().split('T')[0];
+        }
+
+        function setCalcMethod(method) {
+            calcMethod = method;
+            const btnFixed = document.getElementById('btnFixed');
+            const btnDiminishing = document.getElementById('btnDiminishing');
+
+            if (method === 'fixed') {
+                btnFixed.className = "btn-click py-2.5 px-3 rounded-lg font-bold text-xs bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/30 flex items-center justify-center space-x-2 cursor-pointer";
+                btnDiminishing.className = "btn-click py-2.5 px-3 rounded-lg font-bold text-xs text-sky-900 hover:bg-emerald-500/10 flex items-center justify-center space-x-2 cursor-pointer";
+                emiLabel.innerText = "Monthly EMI (किस्ता)";
+                methodDisplay.innerText = "Fixed EMI";
+                methodDisplay.className = "font-extrabold text-indigo-600";
+                scheduleSubtitle.innerText = "Fixed Monthly EMI Breakdown";
+            } else {
+                btnDiminishing.className = "btn-click py-2.5 px-3 rounded-lg font-bold text-xs bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/30 flex items-center justify-center space-x-2 cursor-pointer";
+                btnFixed.className = "btn-click py-2.5 px-3 rounded-lg font-bold text-xs text-sky-900 hover:bg-indigo-500/10 flex items-center justify-center space-x-2 cursor-pointer";
+                emiLabel.innerText = "1st Month Payment (पहिलो किस्ता)";
+                methodDisplay.innerText = "Diminishing Balance";
+                methodDisplay.className = "font-extrabold text-emerald-600";
+                scheduleSubtitle.innerText = "Diminishing Principal & Decreasing Interest Breakdown";
+            }
+            calculateLoan();
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('loanChart').getContext('2d');
+            chartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Principal', 'Interest'],
+                    datasets: [{
+                        data: [70, 30],
+                        backgroundColor: ['#6366f1', '#10b981'],
+                        borderWidth: 0,
+                        hoverOffset: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#0f172a', font: { size: 10, weight: 'bold' } } }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        function setTenureType(type) {
+            tenureType = type;
+            const btnYears = document.getElementById('btnYears');
+            const btnMonths = document.getElementById('btnMonths');
+
+            if (type === 'years') {
+                btnYears.className = "btn-click px-2.5 py-1 rounded font-bold bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md shadow-amber-500/20";
+                btnMonths.className = "btn-click px-2.5 py-1 rounded font-bold text-sky-800 hover:text-sky-950";
+                tenureUnitText.innerText = 'Years';
+                tenureSlider.min = 1; tenureSlider.max = 30;
+                tenureInput.value = 5; tenureSlider.value = 5;
+            } else {
+                btnMonths.className = "btn-click px-2.5 py-1 rounded font-bold bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md shadow-amber-500/20";
+                btnYears.className = "btn-click px-2.5 py-1 rounded font-bold text-sky-800 hover:text-sky-950";
+                tenureUnitText.innerText = 'Months';
+                tenureSlider.min = 1; tenureSlider.max = 360;
+                tenureInput.value = 60; tenureSlider.value = 60;
+            }
+            calculateLoan();
+        }
+
+        function calculateLoan() {
+            const principal = parseFloat(amountInput.value) || 0;
+            const annualRate = parseFloat(rateInput.value) || 0;
+            const tenureVal = parseFloat(tenureInput.value) || 0;
+
+            const monthlyRate = (annualRate / 12) / 100;
+            const totalMonths = tenureType === 'years' ? tenureVal * 12 : tenureVal;
+
+            let firstPayment = 0, totalPayable = 0, totalInterest = 0;
+
+            const startVal = startDateInput.value ? new Date(startDateInput.value) : new Date();
+            const maturityDate = new Date(startVal);
+            maturityDate.setMonth(maturityDate.getMonth() + totalMonths);
+
+            if (calcMethod === 'fixed') {
+                if (principal > 0 && monthlyRate > 0 && totalMonths > 0) {
+                    firstPayment = (principal * monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) / (Math.pow(1 + monthlyRate, totalMonths) - 1);
+                    totalPayable = firstPayment * totalMonths;
+                    totalInterest = totalPayable - principal;
+                }
+                renderFixedSchedule(principal, monthlyRate, totalMonths, firstPayment, startVal);
+            } else {
+                const monthlyPrincipal = principal / totalMonths;
+                let balance = principal;
+                
+                for (let i = 0; i < totalMonths; i++) {
+                    const interest = balance * monthlyRate;
+                    totalInterest += interest;
+                    if (i === 0) {
+                        firstPayment = monthlyPrincipal + interest;
+                    }
+                    balance -= monthlyPrincipal;
+                }
+                totalPayable = principal + totalInterest;
+                renderDiminishingSchedule(principal, monthlyRate, totalMonths, monthlyPrincipal, startVal);
+            }
+
+            const formattedStart = formatDate(startVal);
+            const formattedMaturity = formatDate(maturityDate);
+
+            emiDisplay.innerText = formatCurrency(Math.round(firstPayment));
+            principalDisplay.innerText = formatCurrency(Math.round(principal));
+            interestDisplay.innerText = formatCurrency(Math.round(totalInterest));
+            totalPayableDisplay.innerText = formatCurrency(Math.round(totalPayable));
+            maturityDisplay.innerText = formattedMaturity;
+
+            printMethod.innerText = calcMethod === 'fixed' ? 'Fixed EMI' : 'Diminishing';
+            printPrincipal.innerText = formatCurrency(Math.round(principal));
+            printRate.innerText = annualRate + '% p.a.';
+            printInterest.innerText = formatCurrency(Math.round(totalInterest));
+            printEmi.innerText = formatCurrency(Math.round(firstPayment));
+            printStartDate.innerText = formattedStart;
+            printMaturityDate.innerText = formattedMaturity;
+
+            if (chartInstance) {
+                chartInstance.data.datasets[0].data = [Math.round(principal), Math.round(totalInterest)];
+                chartInstance.update();
+            }
+        }
+
+        function renderFixedSchedule(principal, monthlyRate, totalMonths, emi, startDateObj) {
+            let balance = principal;
+            let rowsHtml = '';
+
+            for (let month = 1; month <= totalMonths; month++) {
+                const interestPayment = balance * monthlyRate;
+                let principalPayment = emi - interestPayment;
+
+                if (month === totalMonths) {
+                    principalPayment = balance;
+                    balance = 0;
+                } else {
+                    balance -= principalPayment;
+                }
+
+                const payDate = new Date(startDateObj);
+                payDate.setMonth(payDate.getMonth() + month);
+
+                rowsHtml += `
+                    <tr class="hover:bg-sky-50 transition-colors">
+                        <td class="py-1.5 px-3 font-bold text-slate-500">${month}</td>
+                        <td class="py-1.5 px-3 text-slate-700 font-medium">${formatDate(payDate)}</td>
+                        <td class="py-1.5 px-3 font-bold text-indigo-700">${formatCurrency(Math.round(emi))}</td>
+                        <td class="py-1.5 px-3 text-sky-700 font-semibold">${formatCurrency(Math.round(principalPayment))}</td>
+                        <td class="py-1.5 px-3 text-emerald-600 font-semibold">${formatCurrency(Math.round(interestPayment))}</td>
+                        <td class="py-1.5 px-3 text-right font-medium text-slate-700">${formatCurrency(Math.round(Math.max(0, balance)))}</td>
+                    </tr>
+                `;
+            }
+            scheduleTableBody.innerHTML = rowsHtml;
+        }
+
+        function renderDiminishingSchedule(principal, monthlyRate, totalMonths, monthlyPrincipal, startDateObj) {
+            let balance = principal;
+            let rowsHtml = '';
+
+            for (let month = 1; month <= totalMonths; month++) {
+                const interestPayment = balance * monthlyRate;
+                let principalPayment = monthlyPrincipal;
+
+                if (month === totalMonths) {
+                    principalPayment = balance;
+                    balance = 0;
+                } else {
+                    balance -= principalPayment;
+                }
+
+                const totalMonthlyPayment = principalPayment + interestPayment;
+                const payDate = new Date(startDateObj);
+                payDate.setMonth(payDate.getMonth() + month);
+
+                rowsHtml += `
+                    <tr class="hover:bg-sky-50 transition-colors">
+                        <td class="py-1.5 px-3 font-bold text-slate-500">${month}</td>
+                        <td class="py-1.5 px-3 text-slate-700 font-medium">${formatDate(payDate)}</td>
+                        <td class="py-1.5 px-3 font-bold text-teal-700">${formatCurrency(Math.round(totalMonthlyPayment))}</td>
+                        <td class="py-1.5 px-3 text-sky-700 font-semibold">${formatCurrency(Math.round(principalPayment))}</td>
+                        <td class="py-1.5 px-3 text-emerald-600 font-semibold">${formatCurrency(Math.round(interestPayment))}</td>
+                        <td class="py-1.5 px-3 text-right font-medium text-slate-700">${formatCurrency(Math.round(Math.max(0, balance)))}</td>
+                    </tr>
+                `;
+            }
+            scheduleTableBody.innerHTML = rowsHtml;
+        }
+
+        function bindInputSlider(input, slider) {
+            input.addEventListener('input', () => { slider.value = input.value; calculateLoan(); });
+            slider.addEventListener('input', () => { input.value = slider.value; calculateLoan(); });
+        }
+
+        bindInputSlider(amountInput, amountSlider);
+        bindInputSlider(rateInput, rateSlider);
+        bindInputSlider(tenureInput, tenureSlider);
+        startDateInput.addEventListener('change', calculateLoan);
+
+        window.onload = () => {
+            initChart();
+            calculateLoan();
+        };
+    </script>
+</body>
+</html>

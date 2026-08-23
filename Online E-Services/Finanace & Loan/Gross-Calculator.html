@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Percentage & Net/Gross Calculator</title>
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      --card-bg: rgba(255, 255, 255, 0.07);
+      --card-border: rgba(255, 255, 255, 0.12);
+      --accent-color: #6366f1;
+      --accent-hover: #4f46e5;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --success-color: #10b981;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      color: var(--text-main);
+    }
+
+    .calculator-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 32px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+    }
+
+    .title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 24px;
+      background: linear-gradient(to right, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .mode-selector {
+      display: flex;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 24px;
+    }
+
+    .mode-btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .mode-btn.active {
+      background: var(--accent-color);
+      color: #fff;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+      color: var(--text-muted);
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-wrapper span {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 12px 14px 12px 40px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 600;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    .input-field:focus {
+      border-color: var(--accent-color);
+    }
+
+    .result-box {
+      margin-top: 28px;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 16px;
+      padding: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+    }
+
+    .result-row:last-child {
+      margin-bottom: 0;
+      padding-top: 12px;
+      border-top: 1px dashed var(--card-border);
+    }
+
+    .result-value {
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .highlight-value {
+      color: var(--success-color);
+      font-size: 1.4rem;
+    }
+
+    .note-text {
+      margin-top: 16px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-align: center;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+
+<div class="calculator-card">
+  <h2 class="title">Net & Gross Percentage Calculator</h2>
+
+  <!-- Mode Toggle -->
+  <div class="mode-selector">
+    <button class="mode-btn active" id="btnNetToGross" onclick="setMode('netToGross')">
+      Net → Total Gross
+    </button>
+    <button class="mode-btn" id="btnGrossToNet" onclick="setMode('grossToNet')">
+      Total Gross → Net
+    </button>
+  </div>
+
+  <!-- Input Fields -->
+  <div class="input-group">
+    <label id="amountLabel" for="amountInput">हातमा पर्नुपर्ने रकम (Target Net Amount)</label>
+    <div class="input-wrapper">
+      <span>Rs.</span>
+      <input type="number" id="amountInput" class="input-field" value="10000" placeholder="10000" oninput="calculate()">
+    </div>
+  </div>
+
+  <div class="input-group">
+    <label for="percentInput">कट्टी प्रतिशत (Deduction %)</label>
+    <div class="input-wrapper">
+      <span>%</span>
+      <input type="number" id="percentInput" class="input-field" value="5" placeholder="5" oninput="calculate()">
+    </div>
+  </div>
+
+  <!-- Output Display -->
+  <div class="result-box">
+    <div class="result-row">
+      <span>कुल रकम (Total Gross):</span>
+      <span class="result-value highlight-value" id="resGross">Rs. 0.00</span>
+    </div>
+    <div class="result-row">
+      <span>कट्टी रकम (Deduction):</span>
+      <span class="result-value" id="resDeduction" style="color: #f87171;">Rs. 0.00</span>
+    </div>
+    <div class="result-row">
+      <span>हातमा पर्ने रकम (Net Amount):</span>
+      <span class="result-value" id="resNet">Rs. 0.00</span>
+    </div>
+  </div>
+
+  <p class="note-text" id="formulaNote">
+    Formula: $\text{Gross} = \frac{\text{Target Net}}{1 - (\text{Percentage} / 100)}$
+  </p>
+</div>
+
+<script>
+  let currentMode = 'netToGross';
+
+  function setMode(mode) {
+    currentMode = mode;
+    const btnNet = document.getElementById('btnNetToGross');
+    const btnGross = document.getElementById('btnGrossToNet');
+    const label = document.getElementById('amountLabel');
+    const note = document.getElementById('formulaNote');
+
+    if (mode === 'netToGross') {
+      btnNet.classList.add('active');
+      btnGross.classList.remove('active');
+      label.innerText = 'हातमा पर्नुपर्ने रकम (Target Net Amount)';
+      note.innerText = 'Formula: Gross = Target Net / (1 - Percentage/100)';
+    } else {
+      btnGross.classList.add('active');
+      btnNet.classList.remove('active');
+      label.innerText = 'कुल प्रारम्भिक रकम (Total Gross Amount)';
+      note.innerText = 'Formula: Net = Gross - (Gross * Percentage/100)';
+    }
+    calculate();
+  }
+
+  function calculate() {
+    const amount = parseFloat(document.getElementById('amountInput').value) || 0;
+    const rate = parseFloat(document.getElementById('percentInput').value) || 0;
+
+    let gross = 0;
+    let net = 0;
+    let deduction = 0;
+
+    if (currentMode === 'netToGross') {
+      // Reverse calculation: Net is known, find Gross
+      net = amount;
+      if (rate < 100) {
+        gross = net / (1 - (rate / 100));
+        deduction = gross - net;
+      }
+    } else {
+      // Standard calculation: Gross is known, find Net
+      gross = amount;
+      deduction = gross * (rate / 100);
+      net = gross - deduction;
+    }
+
+    document.getElementById('resGross').innerText = 'Rs. ' + gross.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    document.getElementById('resDeduction').innerText = 'Rs. ' + deduction.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    document.getElementById('resNet').innerText = 'Rs. ' + net.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  }
+
+  // Initial Calculation
+  calculate();
+</script>
+
+</body>
+</html>
