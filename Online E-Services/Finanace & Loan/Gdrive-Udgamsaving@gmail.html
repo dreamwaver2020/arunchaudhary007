@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Cloud Storage - Drive Sync</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ==========================================================================
+           BACKGROUND IMAGE URL SECTION (Hajurle pachhi ferna milne link yahan chha)
+           ========================================================================== */
+        :root {
+            --bg-image-url: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80');
+            
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --primary-light: rgba(59, 130, 246, 0.15);
+            --bg-overlay: rgba(11, 22, 44, 0.45); 
+            --card: rgba(15, 23, 42, 0.6);
+            --text-main: #f8fafc;
+            --text-muted: #cbd5e1;
+            --border: rgba(255, 255, 255, 0.14);
+            --success: #10b981;
+            --danger: #ef4444;
+            --glow: rgba(59, 130, 246, 0.25);
+            
+            /* Nano Banana & Neon Shining Theme Colors */
+            --banana-yellow: #fef08a;
+            --banana-neon: #eab308;
+            --shining-pink: #f43f5e;
+            --shining-cyan: #06b6d4;
+            --form-glow: rgba(234, 179, 8, 0.35);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        
+        /* 🔥 100% Fit to Screen Resolution Layout */
+        body { 
+            background-color: #0b111e;
+            color: var(--text-main); 
+            padding: 15px 25px;
+            background-image: linear-gradient(var(--bg-overlay), var(--bg-overlay)), var(--bg-image-url);
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden; /* Perfect screen lock: No outer scrollbars allowed */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ==========================================================================
+           PREMIUM GLASSMORPHIC NAVIGATION BAR WITH DROPDOWNS
+           ========================================================================== */
+        .main-navbar {
+            width: 100%;
+            max-width: 1550px;
+            margin: 0 auto 15px auto;
+            background: var(--card);
+            padding: 14px 32px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(20px) saturate(140%);
+            -webkit-backdrop-filter: blur(20px) saturate(140%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 999;
+            flex-shrink: 0;
+        }
+
+        .navbar-brand {
+            font-size: 1.15rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--banana-yellow), #ffffff, var(--shining-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.01em;
+            text-decoration: none;
+            text-shadow: 0 0 15px rgba(234, 179, 8, 0.3);
+        }
+
+        .navbar-menu {
+            display: flex;
+            gap: 28px;
+            list-style: none;
+        }
+
+        .navbar-item {
+            position: relative;
+            padding: 4px 0;
+        }
+
+        .navbar-item > a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.88rem;
+            font-weight: 600;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .navbar-item:hover > a, .navbar-item > a.active {
+            color: var(--text-main);
+            text-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+        }
+
+        .has-dropdown > a::after {
+            content: '▾';
+            font-size: 0.75rem;
+            transition: transform 0.2s ease;
+        }
+        .has-dropdown:hover > a::after {
+            transform: rotate(180deg);
+        }
+
+        .submenu-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            min-width: 180px;
+            padding: 8px 0;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.25s ease;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            list-style: none;
+        }
+
+        .navbar-item:hover .submenu-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(4px);
+        }
+
+        .submenu-dropdown li a {
+            display: block;
+            padding: 10px 18px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        .submenu-dropdown li a:hover {
+            background: var(--primary-light);
+            color: var(--text-main);
+            padding-left: 22px;
+        }
+
+        /* 🔥 App Grid Container Fixed Frame Setup */
+        .app-container { 
+            width: 100%;
+            max-width: 1550px; 
+            margin: 0 auto; 
+            display: grid; 
+            grid-template-columns: 380px 1fr; 
+            gap: 24px; 
+            flex-grow: 1;
+            height: calc(100vh - 90px); /* Strictly fits the rest of screen resolution */
+            overflow: hidden;
+        }
+
+        /* Sleek Glassmorphic Form Card with Extra Shining Nano Banana Border */
+        .glass-card { 
+            background: var(--card); 
+            padding: 25px 22px; 
+            border-radius: 18px; 
+            border: 1px solid rgba(234, 179, 8, 0.4); 
+            backdrop-filter: blur(25px) saturate(140%);
+            -webkit-backdrop-filter: blur(25px) saturate(140%);
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6), 0 0 25px -5px var(--form-glow); 
+            height: 100%; /* Fits perfectly within the column height */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            animation: containerGlow 4s infinite alternate;
+            flex-shrink: 0;
+        }
+
+        @keyframes containerGlow {
+            0% { border-color: rgba(234, 179, 8, 0.3); box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6), 0 0 20px -5px rgba(234, 179, 8, 0.2); }
+            100% { border-color: rgba(6, 182, 212, 0.5); box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6), 0 0 25px -3px rgba(6, 182, 212, 0.3); }
+        }
+
+        .header-title { 
+            font-size: 1.35rem; 
+            font-weight: 800; 
+            margin-bottom: 20px; 
+            background: linear-gradient(135deg, var(--banana-yellow), var(--banana-neon), var(--shining-pink), var(--shining-cyan)); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            letter-spacing: -0.02em;
+            text-transform: uppercase;
+        }
+
+        .form-group { margin-bottom: 15px; position: relative; }
+        
+        label { 
+            display: block; 
+            font-size: 0.75rem; 
+            font-weight: 800; 
+            margin-bottom: 6px; 
+            background: linear-gradient(90deg, var(--banana-yellow), #ffffff, var(--shining-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase; 
+            letter-spacing: 0.07em; 
+        }
+
+        input[type="text"], input[type="date"] { 
+            width: 100%; 
+            padding: 11px 16px; 
+            border: 1px solid rgba(234, 179, 8, 0.3); 
+            border-radius: 10px; 
+            font-size: 0.9rem; 
+            background: rgba(15, 23, 42, 0.8); 
+            color: var(--text-main);
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease; 
+        }
+
+        input:focus { 
+            border-color: var(--banana-neon); 
+            outline: none; 
+            box-shadow: 0 0 15px rgba(234, 179, 8, 0.4);
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            width: 100%;
+            min-height: 85px; 
+            border: 2px dashed rgba(234, 179, 8, 0.3);
+            border-radius: 10px;
+            background: rgba(15, 23, 42, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            cursor: pointer;
+        }
+        .file-input-wrapper input[type="file"] { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+        .file-input-icon { font-size: 1.3rem; margin-bottom: 2px; color: var(--banana-yellow); }
+        .file-input-text { font-size: 0.78rem; color: var(--text-muted); text-align: center; }
+
+        .btn-upload { 
+            width: 100%; 
+            background: linear-gradient(135deg, var(--banana-neon), #ca8a04, var(--shining-pink)); 
+            color: #0f172a; 
+            border: none; 
+            padding: 13px; 
+            border-radius: 10px; 
+            font-weight: 800; 
+            cursor: pointer; 
+            font-size: 0.9rem; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px;
+            text-transform: uppercase;
+        }
+        .btn-upload:hover { color: white; transform: translateY(-1px); }
+
+        /* 🔥 Right Panel Configuration Layer Setup */
+        .list-section {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden; /* Prevent container level scrolling */
+        }
+
+        .search-box-container { margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+        .search-box-container input {
+            width: 100%; padding: 11px 16px; border-radius: 10px; border: 1px solid var(--border);
+            background: rgba(15, 23, 42, 0.8); color: var(--text-main); font-size: 0.9rem;
+        }
+
+        .repo-header { 
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; 
+            background: var(--card); padding: 14px 24px; border-radius: 14px; border: 1px solid var(--border); 
+            flex-shrink: 0;
+        }
+
+        /* 🔥 This wrapper isolates table overflow perfectly */
+        .table-scroll-wrapper {
+            flex-grow: 1;
+            overflow-y: auto; /* Internal scroll only for excessive records */
+            padding-right: 4px;
+        }
+        .table-scroll-wrapper::-webkit-scrollbar { width: 5px; }
+        .table-scroll-wrapper::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
+
+        table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+        th { text-align: left; padding: 0 18px; color: var(--text-muted); font-size: 0.72rem; font-weight: 800; text-transform: uppercase; }
+        
+        td { 
+            padding: 12px 18px; 
+            background: var(--card); 
+            border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+        }
+        td:first-child { border-left: 1px solid var(--border); border-radius: 12px 0 0 12px; }
+        td:last-child { border-right: 1px solid var(--border); border-radius: 0 12px 12px 0; }
+        tr:hover td { background: rgba(30, 41, 59, 0.65); border-color: rgba(59, 130, 246, 0.35); }
+
+        .client-info .name { font-weight: 700; font-size: 0.95rem; color: var(--text-main); }
+        .client-info .date { font-size: 0.75rem; color: #94a3b8; margin-top: 2px; }
+        .file-attached { font-size: 0.75rem; color: #60a5fa; margin-top: 4px; display: inline-flex; align-items: center; gap: 4px;}
+
+        .badge-sync { 
+            display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; 
+            background: rgba(16, 185, 129, 0.12); color: #34d399; border-radius: 8px; 
+            font-size: 0.68rem; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.25); 
+        }
+        .pulse-dot { width: 6px; height: 6px; background: #10b981; border-radius: 50%; animation: pulse 2s infinite; }
+
+        .actions { display: flex; gap: 8px; justify-content: flex-end; }
+        .btn-action { padding: 8px 14px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease; }
+        .btn-view { background: var(--primary-light); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.25); }
+        .btn-view:hover { background: var(--primary); color: white; }
+        .btn-del { background: rgba(239, 68, 68, 0.1); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.25); }
+
+        .pagination-container {
+            display: flex; justify-content: center; align-items: center; gap: 6px; padding: 8px 0; flex-shrink: 0;
+        }
+        .page-btn {
+            padding: 6px 12px; background: var(--card); border: 1px solid var(--border); border-radius: 6px;
+            color: var(--text-main); font-size: 0.78rem; font-weight: 600; cursor: pointer;
+        }
+        .page-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        /* 🔥 Embedded Preview Frame Layout Architecture */
+        .preview-container { 
+            background: var(--card); border-radius: 14px; 
+            border: 1px solid rgba(59, 130, 246, 0.3); box-shadow: 0 25px 50px -15px rgba(0, 0, 0, 0.6); 
+            display: none; overflow: hidden; backdrop-filter: blur(30px);
+            position: fixed; /* Fixed modal structure over the repository */
+            top: 90px; left: 425px; right: 25px; bottom: 20px;
+            z-index: 9999;
+        }
+
+        .preview-container.fullscreen-view {
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 0; z-index: 99999;
+        }
+
+        .preview-header { padding: 12px 20px; background: rgba(15, 23, 42, 0.9); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; height: 50px; }
+        .preview-title { font-size: 0.88rem; font-weight: 700; color: var(--text-main); }
+        .preview-actions-group { display: flex; align-items: center; gap: 10px; }
+
+        .btn-fullscreen {
+            background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border);
+            color: var(--banana-yellow); font-size: 0.75rem; font-weight: 700;
+            padding: 5px 12px; border-radius: 6px; cursor: pointer;
+        }
+        .btn-close-preview { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-muted); cursor: pointer; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; }
+        .btn-close-preview:hover { color: white; background: var(--danger); }
+        
+        /* 🔥 High-Precision Iframe Window Allocation */
+        .preview-iframe { width: 100%; height: calc(100% - 50px); border: none; background: #fff; }
+
+        @keyframes pulse { 0% { transform: scale(0.9); opacity: 0.6; } 50% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(0.9); opacity: 0.6; } }
+    </style>
+</head>
+<body>
+
+<nav class="main-navbar">
+    <a href="#" class="navbar-brand" onclick="navigateToHome(event)">Drive-Link</a>
+    <ul class="navbar-menu">
+        <li class="navbar-item"><a href="#" class="active" onclick="navigateToHome(event)">Home</a></li>
+        
+        <li class="navbar-item has-dropdown">
+            <a href="#">Loan Form</a>
+            <ul class="submenu-dropdown">
+                <li><a href="#" onclick="openFormInsideIframe('Advance_rin_form_COMPLETE_FIREBASE_ADMIN.html', 'New Loan Application Form'); return false;">New Application</a></li>
+                <li><a href="#" onclick="alert('Valuation Sheet Form'); return false;">Valuation Sheet</a></li>
+                <li><a href="#" onclick="alert('Pending Evaluations Form'); return false;">Pending List</a></li>
+            </ul>
+        </li>
+    </ul>
+</nav>
+
+<div class="app-container" id="mainDashboard">
+    <div class="glass-card">
+        <div>
+            <div class="search-box-container">
+                <label style="background: linear-gradient(90deg, #60a5fa, #93c5fd); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Vault Search</label>
+                <input type="text" id="search" placeholder="Filter through archives...">
+            </div>
+
+            <h2 class="header-title">Cloud Archive</h2>
+            <form id="driveForm">
+                <div class="form-group">
+                    <label>Client Name</label>
+                    <input type="text" id="cName" placeholder="e.g. Rajesh Hamal" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Document Date</label>
+                    <input type="date" id="cDate" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Select Document</label>
+                    <div class="file-input-wrapper">
+                        <div class="file-input-icon">📁</div>
+                        <div class="file-input-text" id="fileStatusText">Drag & drop or browse file</div>
+                        <input type="file" id="cFile" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" required>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <button type="submit" form="driveForm" class="btn-upload" id="upBtn">
+            <span>Sync to Google Drive</span>
+        </button>
+    </div>
+
+    <div class="list-section">
+        <div class="repo-header">
+            <div>
+                <h2 style="font-size: 1.1rem; font-weight: 700; letter-spacing: -0.01em;">Secure Repository</h2>
+                <p id="stats" style="font-size: 0.78rem; color: #cbd5e1; margin-top: 2px; font-weight: 500;">Establishing data tracking link...</p>
+            </div>
+        </div>
+
+        <div class="table-scroll-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Client Details</th>
+                        <th>Status</th>
+                        <th style="text-align: right;">Operations Matrix</th>
+                    </tr>
+                </thead>
+                <tbody id="docTable"></tbody>
+            </table>
+        </div>
+
+        <div class="pagination-container" id="paginationBox"></div>
+    </div>
+</div>
+
+<div class="preview-container" id="previewContainer">
+    <div class="preview-header">
+        <div class="preview-title">
+            <span id="previewPrefixText">📄 Live Document Object Preview:</span>
+            <span id="previewFileName" style="color: #60a5fa; font-weight: 600;"></span>
+        </div>
+        
+        <div class="preview-actions-group">
+            <button class="btn-fullscreen" onclick="toggleIframeFullScreen()" id="fsBtn">
+                <span id="fsIcon">🖥️</span> <span id="fsText">Full Screen</span>
+            </button>
+            <button class="btn-close-preview" onclick="closePreview()" title="Close Frame View">✕</button>
+        </div>
+    </div>
+    <iframe class="preview-iframe" id="viewIframe" allow="autoplay"></iframe>
+</div>
+
+<script>
+    const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbxVNRWiEAaX-i4_O9d8OaYbL9ensazEzXAEQDZn8m1Zy0gaZV1W-jyT527AEIcwlNyNGA/exec";
+
+    let currentPage = 1;
+    const recordsPerPage = 15;
+    let globalRecordsCache = [];
+    let filteredRecordsCache = [];
+
+    function navigateToHome(e) {
+        e.preventDefault();
+        closePreview();
+        document.querySelector('.table-scroll-wrapper').scrollTop = 0;
+    }
+
+    function openFormInsideIframe(formUrl, formTitle) {
+        const previewContainer = document.getElementById('previewContainer');
+        const viewIframe = document.getElementById('viewIframe');
+        const previewFileName = document.getElementById('previewFileName');
+        const previewPrefixText = document.getElementById('previewPrefixText');
+        const fsBtn = document.getElementById('fsBtn');
+        
+        fsBtn.style.display = "flex";
+        
+        previewPrefixText.innerText = "📋 Active Form Corridor: ";
+        previewFileName.innerText = formTitle;
+        viewIframe.src = formUrl;
+        
+        previewContainer.style.display = "block";
+    }
+
+    function toggleIframeFullScreen() {
+        const container = document.getElementById('previewContainer');
+        const fsText = document.getElementById('fsText');
+        const fsIcon = document.getElementById('fsIcon');
+        
+        container.classList.toggle('fullscreen-view');
+        
+        if(container.classList.contains('fullscreen-view')) {
+            fsText.innerText = "Exit Full Screen";
+            fsIcon.innerText = "🎯";
+        } else {
+            fsText.innerText = "Full Screen";
+            fsIcon.innerText = "🖥️";
+        }
+    }
+
+    const driveForm = document.getElementById('driveForm');
+    const upBtn = document.getElementById('upBtn');
+
+    window.addEventListener('load', () => {
+        fetchCloudData();
+    });
+
+    function fetchCloudData() {
+        document.getElementById('stats').innerText = "Loading global archives from cloud...";
+        
+        fetch(GOOGLE_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "fetch" })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.status === "success") {
+                globalRecordsCache = data.records || [];
+                renderUI();
+            } else {
+                document.getElementById('stats').innerText = "Error loading secure database.";
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            document.getElementById('stats').innerText = "Connection error. Retrying archive fetch...";
+        });
+    }
+
+    document.getElementById('cFile').addEventListener('change', function(e) {
+        const lbl = document.getElementById('fileStatusText');
+        if(this.files.length > 0) {
+            lbl.innerText = "Selected: " + this.files[0].name;
+            lbl.style.color = "var(--banana-yellow)";
+        } else {
+            lbl.innerText = "Drag & drop or browse file";
+            lbl.style.color = "var(--text-muted)";
+        }
+    });
+
+    driveForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        upBtn.disabled = true;
+        upBtn.innerText = "Syncing with Google Drive...";
+
+        const fileObj = document.getElementById('cFile').files[0];
+        const reader = new FileReader();
+
+        reader.onload = function(event) {
+            const uploadJSON = {
+                client: document.getElementById('cName').value,
+                date: document.getElementById('cDate').value,
+                name: fileObj.name,
+                file: event.target.result
+            };
+
+            fetch(GOOGLE_URL, {
+                method: "POST",
+                body: JSON.stringify(uploadJSON)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === "success") {
+                    driveForm.reset();
+                    document.getElementById('fileStatusText').innerText = "Drag & drop or browse file";
+                    document.getElementById('fileStatusText').style.color = "var(--text-muted)";
+                    upBtn.disabled = false;
+                    upBtn.innerText = "Sync to Google Drive";
+                    currentPage = 1;
+                    fetchCloudData();
+                } else {
+                    throw new Error(data.message);
+                }
+            })
+            .catch(err => {
+                alert("Upload failed or deployment tracking error. Please cross-check Apps Script configuration.");
+                upBtn.disabled = false;
+                upBtn.innerText = "Try Upload Again";
+            });
+        };
+        reader.readAsDataURL(fileObj);
+    });
+
+    function renderUI(query = "") {
+        const tableBody = document.getElementById('docTable');
+        tableBody.innerHTML = "";
+        
+        filteredRecordsCache = globalRecordsCache.filter(r => 
+            r.client.toLowerCase().includes(query.toLowerCase()) || 
+            r.date.includes(query) ||
+            r.fname.toLowerCase().includes(query.toLowerCase())
+        );
+
+        filteredRecordsCache.reverse();
+        
+        document.getElementById('stats').innerText = `${filteredRecordsCache.length} Secure Documents Archived`;
+
+        const totalRecords = filteredRecordsCache.length;
+        const totalPages = Math.ceil(totalRecords / recordsPerPage) || 1;
+        
+        if (currentPage > totalPages) currentPage = totalPages;
+
+        const startIndex = (currentPage - 1) * recordsPerPage;
+        const endIndex = startIndex + recordsPerPage;
+        const pageRecords = filteredRecordsCache.slice(startIndex, endIndex);
+
+        pageRecords.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>
+                    <div class="client-info">
+                        <div class="name">${item.client}</div>
+                        <div class="date">${item.date}</div>
+                        <div class="file-attached">📂 ${item.fname}</div>
+                    </div>
+                </td>
+                <td>
+                    <div class="badge-sync"><span class="pulse-dot"></span> SECURE SYNC</div>
+                </td>
+                <td class="actions">
+                    <button class="btn-action btn-view" onclick="openInlinePreview('${item.driveLink}', '${item.fname}')">Browser View</button>
+                    <button class="btn-action btn-del" style="opacity: 0.3; cursor: not-allowed;" disabled title="Cloud deletion via dashboard restricted">Remove</button>
+                </td>
+            `;
+            tableBody.appendChild(tr);
+        });
+
+        renderPaginationControls(totalPages);
+    }
+
+    function renderPaginationControls(totalPages) {
+        const container = document.getElementById('paginationBox');
+        container.innerHTML = "";
+
+        if (totalPages <= 1) return;
+
+        const prevBtn = document.createElement('button');
+        prevBtn.className = "page-btn";
+        prevBtn.innerText = "«";
+        prevBtn.disabled = currentPage === 1;
+        prevBtn.onclick = () => { if(currentPage > 1) { currentPage--; triggerPageChange(); } };
+        container.appendChild(prevBtn);
+
+        for (let i = 1; i <= totalPages; i++) {
+            const btn = document.createElement('button');
+            btn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+            btn.innerText = i;
+            btn.onclick = () => { currentPage = i; triggerPageChange(); };
+            container.appendChild(btn);
+        }
+
+        const nextBtn = document.createElement('button');
+        nextBtn.className = "page-btn";
+        nextBtn.innerText = "»";
+        nextBtn.disabled = currentPage === totalPages;
+        nextBtn.onclick = () => { if(currentPage < totalPages) { currentPage++; triggerPageChange(); } };
+        container.appendChild(nextBtn);
+    }
+
+    function triggerPageChange() {
+        const searchQuery = document.getElementById('search').value;
+        renderUI(searchQuery);
+    }
+
+    function openInlinePreview(embedUrl, filename) {
+        const previewContainer = document.getElementById('previewContainer');
+        const viewIframe = document.getElementById('viewIframe');
+        const previewFileName = document.getElementById('previewFileName');
+        const previewPrefixText = document.getElementById('previewPrefixText');
+        const fsBtn = document.getElementById('fsBtn');
+        
+        if(!embedUrl || embedUrl === "undefined" || embedUrl === "null") {
+            alert("No preview link found. Please check Google Sheet records.");
+            return;
+        }
+        
+        fsBtn.style.display = "none";
+        
+        previewPrefixText.innerText = "📄 Live Document Object Preview: ";
+        previewFileName.innerText = filename;
+        viewIframe.src = embedUrl;
+        previewContainer.style.display = "block";
+    }
+
+    function closePreview() {
+        const previewContainer = document.getElementById('previewContainer');
+        const viewIframe = document.getElementById('viewIframe');
+        
+        previewContainer.classList.remove('fullscreen-view');
+        
+        document.getElementById('fsText').innerText = "Full Screen";
+        document.getElementById('fsIcon').innerText = "🖥️";
+        
+        viewIframe.src = "";
+        previewContainer.style.display = "none";
+    }
+
+    document.getElementById('search').addEventListener('input', (e) => {
+        currentPage = 1;
+        renderUI(e.target.value);
+    });
+</script>
+
+</body>
+</html>
